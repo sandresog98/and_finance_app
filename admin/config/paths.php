@@ -29,5 +29,22 @@ function getRedirectPath($path) {
 
 // Función para obtener URL de assets
 function getAssetUrl($path) {
-    return dirname(getBaseUrl(), 1) . '/assets/' . $path;
+    // Obtener la ruta del script actual
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    
+    // Buscar el patrón /admin/ en la ruta
+    $marker = '/admin/';
+    $pos = strpos($scriptName, $marker);
+    if ($pos !== false) {
+        // Extraer la parte antes de /admin/ y agregar /assets/
+        $basePath = substr($scriptName, 0, $pos);
+        return $basePath . '/assets/' . ltrim($path, '/');
+    }
+    
+    // Fallback: intentar con getBaseUrl
+    $baseUrl = getBaseUrl();
+    $baseUrl = rtrim($baseUrl, '/');
+    $parts = explode('/', $baseUrl);
+    array_pop($parts); // Eliminar el último segmento (admin)
+    return implode('/', $parts) . '/assets/' . ltrim($path, '/');
 }
