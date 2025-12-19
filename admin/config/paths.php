@@ -49,13 +49,10 @@ function getAssetUrl($path) {
     return implode('/', $parts) . '/assets/' . ltrim($path, '/');
 }
 
-// Función para obtener URL de archivos subidos (usa file_proxy)
+// Función para obtener URL de archivos subidos (igual que en we_are_app)
 function getFileUrl($filePath) {
-    // Normalizar la ruta - remover /uploads/ si existe al inicio
+    // Normalizar la ruta
     $filePath = ltrim($filePath, '/');
-    if (strpos($filePath, 'uploads/') === 0) {
-        $filePath = substr($filePath, 8); // Remover "uploads/"
-    }
     
     // Obtener la URL base del proyecto
     $scriptName = $_SERVER['SCRIPT_NAME'];
@@ -63,5 +60,6 @@ function getFileUrl($filePath) {
     $pos = strpos($scriptName, $marker);
     $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
     
-    return $baseProjectUrl . 'file_proxy.php?file=' . urlencode($filePath);
+    // Construir URL directa como en we_are_app
+    return $baseProjectUrl . $filePath;
 }

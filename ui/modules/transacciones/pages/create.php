@@ -562,12 +562,11 @@ require_once dirname(__DIR__, 4) . '/ui/views/layouts/sidebar.php';
 <script>
 const categoriasIngresos = <?php echo json_encode($categoriasIngresos); ?>;
 const categoriasEgresos = <?php echo json_encode($categoriasEgresos); ?>;
-const fileProxyUrl = '<?php 
+const baseProjectUrl = '<?php 
     $scriptName = $_SERVER['SCRIPT_NAME'];
     $marker = '/and_finance_app/';
     $pos = strpos($scriptName, $marker);
-    $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
-    echo $baseProjectUrl . 'file_proxy.php';
+    echo $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
 ?>';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -773,7 +772,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateCuentaPreview(nombre, banco, logo, tipo, previewEl, textEl) {
         textEl.textContent = nombre;
         if (logo) {
-            previewEl.innerHTML = `<img src="${fileProxyUrl}?file=${encodeURIComponent(logo)}" 
+            previewEl.innerHTML = `<img src="${baseProjectUrl}${logo}" 
                                        alt="${banco}" 
                                        style="max-width: 50px; max-height: 40px; object-fit: contain;"
                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">

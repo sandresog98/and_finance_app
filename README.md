@@ -234,7 +234,6 @@ and_finance_app/
 │   ├── bancos/
 │   └── transacciones/
 │
-├── file_proxy.php              # Proxy para servir archivos protegidos
 ├── roles.json                  # Configuración de roles
 ├── .env                        # Variables de entorno (no versionado)
 └── README.md
@@ -270,8 +269,7 @@ El sistema utiliza una paleta de colores consistente definida en `assets/css/com
 
 ## 🔒 Seguridad
 
-- Archivos en `uploads/` protegidos con `.htaccess`
-- Acceso a archivos solo a través de `file_proxy.php` con verificación de sesión
+- Archivos en `uploads/` accesibles directamente (igual que en we_are_app)
 - Contraseñas hasheadas con `password_hash()`
 - Validación de permisos mediante `roles.json`
 - Sanitización de inputs en todos los formularios

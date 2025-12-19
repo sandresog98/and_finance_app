@@ -412,18 +412,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    const fileProxyUrl = '<?php 
+    const baseProjectUrl = '<?php 
         $scriptName = $_SERVER['SCRIPT_NAME'];
         $marker = '/and_finance_app/';
         $pos = strpos($scriptName, $marker);
-        $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
-        echo $baseProjectUrl . 'file_proxy.php';
+        echo $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
     ?>';
     
     function updateBancoPreview(nombre = 'Seleccionar banco', logo = '') {
         bancoText.textContent = nombre;
         if (logo) {
-            bancoPreview.innerHTML = `<img src="${fileProxyUrl}?file=${encodeURIComponent(logo)}" 
+            bancoPreview.innerHTML = `<img src="${baseProjectUrl}${logo}" 
                                            alt="${nombre}" 
                                            style="max-width: 50px; max-height: 40px; object-fit: contain;"
                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
