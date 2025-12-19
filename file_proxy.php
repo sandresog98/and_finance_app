@@ -29,7 +29,7 @@ if (strpos($file, 'uploads/') === 0) {
 $fileParts = explode('/', $file);
 $sanitizedParts = [];
 foreach ($fileParts as $part) {
-    // Remover caracteres peligrosos
+    // Remover caracteres peligrosos pero mantener punto para extensiones
     $part = preg_replace('/[^a-zA-Z0-9._-]/', '', $part);
     if (!empty($part) && $part !== '.' && $part !== '..') {
         $sanitizedParts[] = $part;
@@ -38,13 +38,41 @@ foreach ($fileParts as $part) {
 
 $file = implode('/', $sanitizedParts);
 $basePath = __DIR__ . '/uploads/';
+
+// Intentar encontrar el archivo con diferentes extensiones si no tiene extensión
 $filePath = realpath($basePath . $file);
+if (!$filePath || !is_file($filePath)) {
+    // Si el archivo no tiene extensión, intentar con extensiones comunes
+    $pathInfo = pathinfo($file);
+    if (empty($pathInfo['extension'])) {
+        $possibleExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'];
+        $baseName = $pathInfo['basename'];
+        $dir = !empty($pathInfo['dirname']) && $pathInfo['dirname'] !== '.' ? $pathInfo['dirname'] . '/' : '';
+        
+        foreach ($possibleExtensions as $ext) {
+            $testPath = realpath($basePath . $dir . $baseName . '.' . $ext);
+            if ($testPath && is_file($testPath)) {
+                $filePath = $testPath;
+                break;
+            }
+        }
+    }
+}
 
 // Verificar que el archivo existe y está dentro del directorio uploads
 $realBasePath = realpath($basePath);
 if (!$filePath || !$realBasePath || strpos($filePath, $realBasePath) !== 0) {
     http_response_code(404);
-    die('Archivo no encontrado');
+    error_log("File proxy error: File not found. Requested: $file, Base path: $basePath, Real base: $realBasePath, File path: " . ($filePath ?: 'null'));
+    
+    // Intentar listar archivos en el directorio para debugging
+    $testDir = $basePath . dirname($file);
+    if (is_dir($testDir)) {
+        $files = scandir($testDir);
+        error_log("Files in directory $testDir: " . implode(', ', $files));
+    }
+    
+    die('Archivo no encontrado: ' . htmlspecialchars($file));
 }
 
 // Verificar que el archivo existe

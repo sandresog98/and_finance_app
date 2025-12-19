@@ -76,6 +76,7 @@ try {
             );
             
             $data['logo_url'] = $result['web_path'];
+            error_log("Bank update - Logo URL guardado: {$data['logo_url']}, File name: {$result['file_name']}, File path: {$result['file_path']}");
         }
         
         $result = $bankModel->update((int)$id, $data);

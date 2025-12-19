@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             
             $logoUrl = $result['web_path'];
+            error_log("Bank create - Logo URL guardado: $logoUrl, File name: {$result['file_name']}, File path: {$result['file_path']}");
         }
         
         $result = $bankModel->create([
