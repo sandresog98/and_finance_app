@@ -44,7 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Procesar logo si se subió
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = dirname(__DIR__, 4) . '/uploads/bancos/';
-            $webPath = '/uploads/bancos';
+            
+            // Construir webPath con la base del proyecto (igual que en we_are_app)
+            $scriptName = $_SERVER['SCRIPT_NAME'];
+            $marker = '/and_finance_app/';
+            $pos = strpos($scriptName, $marker);
+            $webBase = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
+            $webPath = $webBase . 'uploads/bancos';
             
             $result = FileUploadManager::saveUploadedFile(
                 $_FILES['logo'],

@@ -51,6 +51,11 @@ function getAssetUrl($path) {
 
 // Función para obtener URL de archivos subidos (igual que en we_are_app)
 function getFileUrl($filePath) {
+    // Si la ruta ya incluye la base del proyecto, usarla directamente
+    if (strpos($filePath, '/and_finance_app/') !== false || strpos($filePath, 'http') === 0) {
+        return $filePath;
+    }
+    
     // Normalizar la ruta
     $filePath = ltrim($filePath, '/');
     
