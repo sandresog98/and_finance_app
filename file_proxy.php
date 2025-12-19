@@ -42,8 +42,28 @@ foreach ($fileParts as $part) {
 $file = implode('/', $sanitizedParts);
 $basePath = __DIR__ . '/uploads/';
 
-// Intentar encontrar el archivo con diferentes extensiones si no tiene extensión
-$filePath = realpath($basePath . $file);
+// Verificar que el directorio base existe
+if (!is_dir($basePath)) {
+    error_log("File proxy error: Base directory does not exist: $basePath");
+    error_log("File proxy error: __DIR__ is: " . __DIR__);
+    http_response_code(500);
+    die('Error de configuración del servidor');
+}
+
+// Logging para debugging (solo en desarrollo o si hay error)
+$debug = ($_GET['debug'] ?? '0') === '1';
+if ($debug) {
+    error_log("File proxy - Requested file: " . ($_GET['file'] ?? ''));
+    error_log("File proxy - Processed file: $file");
+    error_log("File proxy - Base path: $basePath");
+    error_log("File proxy - Full path: " . $basePath . $file);
+}
+
+// Intentar encontrar el archivo
+$fullPath = $basePath . $file;
+$filePath = realpath($fullPath);
+
+// Verificar si el archivo existe directamente
 if (!$filePath || !is_file($filePath)) {
     // Si el archivo no tiene extensión, intentar con extensiones comunes
     $pathInfo = pathinfo($file);
@@ -64,20 +84,36 @@ if (!$filePath || !is_file($filePath)) {
 
 // Verificar que el archivo existe y está dentro del directorio uploads
 $realBasePath = realpath($basePath);
-if (!$filePath || !$realBasePath || strpos($filePath, $realBasePath) !== 0) {
+if (!$realBasePath) {
+    http_response_code(500);
+    error_log("File proxy error: Cannot resolve base path: $basePath");
+    die('Error de configuración del servidor');
+}
+
+if (!$filePath || !is_file($filePath) || strpos($filePath, $realBasePath) !== 0) {
     http_response_code(404);
-    error_log("File proxy error: File not found. Requested: " . $_GET['file'] . ", Processed: $file, Base path: $basePath, Real base: " . ($realBasePath ?: 'null') . ", File path: " . ($filePath ?: 'null'));
     
-    // Intentar listar archivos en el directorio para debugging
-    $testDir = $basePath . dirname($file);
-    if (is_dir($testDir)) {
-        $files = scandir($testDir);
-        error_log("Files in directory $testDir: " . implode(', ', $files));
+    // Logging detallado para debugging
+    error_log("File proxy error: File not found");
+    error_log("  - Requested: " . ($_GET['file'] ?? ''));
+    error_log("  - Processed: $file");
+    error_log("  - Base path: $basePath");
+    error_log("  - Real base: $realBasePath");
+    error_log("  - Full path tried: $fullPath");
+    error_log("  - File path result: " . ($filePath ?: 'null'));
+    
+    // Verificar si el directorio del archivo existe
+    $fileDir = $basePath . dirname($file);
+    if (is_dir($fileDir)) {
+        $files = @scandir($fileDir);
+        if ($files) {
+            error_log("  - Files in directory $fileDir: " . implode(', ', array_slice($files, 2))); // Excluir . y ..
+        }
     } else {
-        error_log("Directory does not exist: $testDir");
+        error_log("  - Directory does not exist: $fileDir");
     }
     
-    // Intentar con la ruta original sin procesar
+    // Intentar con la ruta original sin procesar (fallback)
     $originalFile = urldecode($_GET['file'] ?? '');
     $originalFile = ltrim($originalFile, '/');
     if (strpos($originalFile, 'uploads/') === 0) {
@@ -86,9 +122,9 @@ if (!$filePath || !$realBasePath || strpos($filePath, $realBasePath) !== 0) {
     $originalPath = realpath($basePath . $originalFile);
     if ($originalPath && is_file($originalPath) && strpos($originalPath, $realBasePath) === 0) {
         $filePath = $originalPath;
-        error_log("File found using original path: $originalPath");
+        error_log("  - File found using original path: $originalPath");
     } else {
-        die('Archivo no encontrado: ' . htmlspecialchars($file) . ' (Original: ' . htmlspecialchars($_GET['file'] ?? '') . ')');
+        die('Archivo no encontrado: ' . htmlspecialchars($file));
     }
 }
 
