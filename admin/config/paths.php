@@ -61,25 +61,49 @@ function getFileUrl($filePath) {
         return $filePath;
     }
     
-    // Si ya empieza con /, es una ruta absoluta - usarla directamente
-    if (strpos($filePath, '/') === 0) {
-        return $filePath;
+    // Obtener la URL base del proyecto de múltiples formas
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+    $marker = '/and_finance_app/';
+    
+    // Verificar si el servidor tiene el patrón /and_finance_app/ en su estructura
+    $hasMarkerInServer = (strpos($scriptName, $marker) !== false) || (strpos($requestUri, $marker) !== false);
+    
+    // Si la ruta contiene /and_finance_app/ pero el servidor no lo tiene, removerlo
+    if (strpos($filePath, $marker) !== false && !$hasMarkerInServer) {
+        // Remover /and_finance_app/ de la ruta
+        $filePath = str_replace($marker, '/', $filePath);
+        $filePath = ltrim($filePath, '/');
     }
     
-    // Si la ruta ya incluye la base del proyecto, usarla directamente
-    if (strpos($filePath, '/and_finance_app/') !== false) {
+    // Si ya empieza con / y el servidor tiene el patrón, verificar si es correcto
+    if (strpos($filePath, '/') === 0) {
+        // Si el servidor tiene el patrón y la ruta también, usarla directamente
+        if ($hasMarkerInServer && strpos($filePath, $marker) !== false) {
+            return $filePath;
+        }
+        // Si el servidor no tiene el patrón pero la ruta sí, ya la removimos arriba
+        // Si la ruta no tiene el patrón, construir la base correcta
+        if (!$hasMarkerInServer) {
+            // Construir base sin /and_finance_app/
+            $baseUrl = getBaseUrl();
+            if (strpos($baseUrl, '/admin/') !== false) {
+                $baseUrl = str_replace('/admin/', '/', $baseUrl);
+            }
+            $baseUrl = rtrim($baseUrl, '/') . '/';
+            return $baseUrl . ltrim($filePath, '/');
+        }
+    }
+    
+    // Si la ruta ya incluye la base del proyecto y el servidor tiene el patrón, usarla directamente
+    if ($hasMarkerInServer && strpos($filePath, $marker) !== false) {
         return $filePath;
     }
     
     // Normalizar la ruta (eliminar / inicial si existe)
     $filePath = ltrim($filePath, '/');
     
-    // Obtener la URL base del proyecto de múltiples formas
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    
     // Intentar encontrar el patrón /and_finance_app/ en SCRIPT_NAME
-    $marker = '/and_finance_app/';
     $pos = strpos($scriptName, $marker);
     if ($pos !== false) {
         $baseProjectUrl = substr($scriptName, 0, $pos + strlen($marker));

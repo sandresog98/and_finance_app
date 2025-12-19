@@ -45,12 +45,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = dirname(__DIR__, 4) . '/uploads/bancos/';
             
-            // Construir webPath con la base del proyecto (igual que en we_are_app)
-            $scriptName = $_SERVER['SCRIPT_NAME'];
+            // Construir webPath con la base del proyecto
+            $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+            
+            // Intentar encontrar el patrón /and_finance_app/ en SCRIPT_NAME
             $marker = '/and_finance_app/';
+            $webBase = null;
             $pos = strpos($scriptName, $marker);
-            $webBase = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
-            $webPath = $webBase . 'uploads/bancos';
+            if ($pos !== false) {
+                $webBase = substr($scriptName, 0, $pos + strlen($marker));
+            } else {
+                // Intentar encontrar el patrón en REQUEST_URI
+                $pos = strpos($requestUri, $marker);
+                if ($pos !== false) {
+                    $webBase = substr($requestUri, 0, $pos + strlen($marker));
+                    $webBase = strtok($webBase, '?'); // Limpiar query string
+                } else {
+                    // Fallback: usar getBaseUrl() y remover /admin/
+                    $baseUrl = getBaseUrl();
+                    if (strpos($baseUrl, '/admin/') !== false) {
+                        $webBase = str_replace('/admin/', '/', $baseUrl);
+                    } else {
+                        $webBase = rtrim($baseUrl, '/') . '/';
+                    }
+                }
+            }
+            
+            $webPath = rtrim($webBase, '/') . '/uploads/bancos';
             
             $result = FileUploadManager::saveUploadedFile(
                 $_FILES['logo'],
