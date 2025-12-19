@@ -135,19 +135,25 @@ class FileUploadManager {
             throw new Exception('No se pudo guardar el archivo');
         }
         
-        // Construir ruta web
-        $webPath = $config['webPath'];
-        if ($config['createSubdirs']) {
-            $webPath .= '/' . date('Y') . '/' . date('m');
+        // Construir ruta web (igual que en we_are_app)
+        $webUrl = '';
+        if (!empty($config['webPath'])) {
+            if ($config['createSubdirs']) {
+                $year = date('Y');
+                $month = date('m');
+                $webUrl = rtrim($config['webPath'], '/') . '/' . $year . '/' . $month . '/' . $uniqueFileName;
+            } else {
+                $webUrl = rtrim($config['webPath'], '/') . '/' . $uniqueFileName;
+            }
         }
-        $webPath .= '/' . $uniqueFileName;
         
         return [
             'success' => true,
             'original_name' => $originalName,
             'file_name' => $uniqueFileName,
             'file_path' => $destinationPath,
-            'web_path' => $webPath,
+            'web_path' => $webUrl, // Mantener compatibilidad
+            'webUrl' => $webUrl,   // Agregar webUrl como en we_are_app
             'size' => $size,
             'mime_type' => $file['type'] ?? mime_content_type($destinationPath)
         ];

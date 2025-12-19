@@ -141,17 +141,7 @@ require_once dirname(__DIR__, 4) . '/admin/views/layouts/sidebar.php';
                         <label for="logo" class="form-label">Logo</label>
                         <?php if (!empty($banco['logo_url'])): ?>
                         <div class="mb-2">
-                            <?php 
-                            // Usar file_proxy para servir la imagen de forma segura
-                            $logoPath = ltrim($banco['logo_url'], '/');
-                            // Obtener la URL base del proyecto
-                            $scriptName = $_SERVER['SCRIPT_NAME'];
-                            $marker = '/and_finance_app/';
-                            $pos = strpos($scriptName, $marker);
-                            $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
-                            $proxyUrl = $baseProjectUrl . 'file_proxy.php?file=' . urlencode($logoPath);
-                            ?>
-                            <img src="<?php echo htmlspecialchars($proxyUrl); ?>" 
+                            <img src="<?php echo htmlspecialchars(getFileUrl($banco['logo_url'])); ?>" 
                                  alt="Logo actual" 
                                  style="max-width: 100px; max-height: 100px; object-fit: contain; border: 1px solid #dee2e6; padding: 5px; border-radius: 8px;"
                                  onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Crect fill=\'%23ddd\' width=\'100\' height=\'100\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3EImagen no disponible%3C/text%3E%3C/svg%3E';">

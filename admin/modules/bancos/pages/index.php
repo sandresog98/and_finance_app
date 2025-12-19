@@ -85,17 +85,7 @@ require_once dirname(__DIR__, 4) . '/admin/views/layouts/sidebar.php';
                         <tr>
                             <td>
                                 <?php if (!empty($banco['logo_url'])): ?>
-                                <?php 
-                                // Usar file_proxy para servir la imagen de forma segura
-                                $logoPath = ltrim($banco['logo_url'], '/');
-                                // Obtener la URL base del proyecto
-                                $scriptName = $_SERVER['SCRIPT_NAME'];
-                                $marker = '/and_finance_app/';
-                                $pos = strpos($scriptName, $marker);
-                                $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
-                                $proxyUrl = $baseProjectUrl . 'file_proxy.php?file=' . urlencode($logoPath);
-                                ?>
-                                <img src="<?php echo htmlspecialchars($proxyUrl); ?>" 
+                                <img src="<?php echo htmlspecialchars(getFileUrl($banco['logo_url'])); ?>" 
                                      alt="<?php echo htmlspecialchars($banco['nombre']); ?>" 
                                      style="max-width: 50px; max-height: 50px; object-fit: contain;"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">

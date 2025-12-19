@@ -356,7 +356,7 @@ require_once dirname(__DIR__, 4) . '/ui/views/layouts/sidebar.php';
                             <div class="d-flex align-items-center gap-3">
                                 <div>
                                     <?php if (!empty($cuenta['banco_logo'])): ?>
-                                    <img src="<?php echo dirname(getBaseUrl(), 1); ?>/file_proxy.php?file=<?php echo urlencode($cuenta['banco_logo']); ?>" 
+                                    <img src="<?php echo htmlspecialchars(getFileUrl($cuenta['banco_logo'])); ?>" 
                                          alt="<?php echo htmlspecialchars($cuenta['banco_nombre'] ?? ''); ?>"
                                          style="max-width: 50px; max-height: 50px; object-fit: contain;"
                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -419,7 +419,7 @@ require_once dirname(__DIR__, 4) . '/ui/views/layouts/sidebar.php';
                             <div class="d-flex align-items-center gap-3">
                                 <div>
                                     <?php if (!empty($cuenta['banco_logo'])): ?>
-                                    <img src="<?php echo dirname(getBaseUrl(), 1); ?>/file_proxy.php?file=<?php echo urlencode($cuenta['banco_logo']); ?>" 
+                                    <img src="<?php echo htmlspecialchars(getFileUrl($cuenta['banco_logo'])); ?>" 
                                          alt="<?php echo htmlspecialchars($cuenta['banco_nombre'] ?? ''); ?>"
                                          style="max-width: 50px; max-height: 50px; object-fit: contain;"
                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -562,7 +562,13 @@ require_once dirname(__DIR__, 4) . '/ui/views/layouts/sidebar.php';
 <script>
 const categoriasIngresos = <?php echo json_encode($categoriasIngresos); ?>;
 const categoriasEgresos = <?php echo json_encode($categoriasEgresos); ?>;
-const fileProxyUrl = '<?php echo dirname(getBaseUrl(), 1); ?>/file_proxy.php';
+const fileProxyUrl = '<?php 
+    $scriptName = $_SERVER['SCRIPT_NAME'];
+    $marker = '/and_finance_app/';
+    $pos = strpos($scriptName, $marker);
+    $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
+    echo $baseProjectUrl . 'file_proxy.php';
+?>';
 
 document.addEventListener('DOMContentLoaded', function() {
     const tipoInput = document.getElementById('tipo');

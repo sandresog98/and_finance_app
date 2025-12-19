@@ -259,7 +259,7 @@ require_once dirname(__DIR__, 4) . '/ui/views/layouts/sidebar.php';
                                     title="<?php echo htmlspecialchars($banco['nombre']); ?>">
                                 <div class="d-flex flex-column align-items-center justify-content-center">
                                     <?php if (!empty($banco['logo_url'])): ?>
-                                    <img src="<?php echo dirname(getBaseUrl(), 1); ?>/file_proxy.php?file=<?php echo urlencode($banco['logo_url']); ?>" 
+                                    <img src="<?php echo htmlspecialchars(getFileUrl($banco['logo_url'])); ?>" 
                                          alt="<?php echo htmlspecialchars($banco['nombre']); ?>"
                                          style="max-width: 80px; max-height: 50px; object-fit: contain; margin-bottom: 8px;"
                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -412,7 +412,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    const fileProxyUrl = '<?php echo dirname(getBaseUrl(), 1); ?>/file_proxy.php';
+    const fileProxyUrl = '<?php 
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        $marker = '/and_finance_app/';
+        $pos = strpos($scriptName, $marker);
+        $baseProjectUrl = $pos !== false ? substr($scriptName, 0, $pos + strlen($marker)) : '/and_finance_app/';
+        echo $baseProjectUrl . 'file_proxy.php';
+    ?>';
     
     function updateBancoPreview(nombre = 'Seleccionar banco', logo = '') {
         bancoText.textContent = nombre;
