@@ -19,6 +19,9 @@ if (empty($file)) {
     die('Archivo no especificado');
 }
 
+// Decodificar URL
+$file = urldecode($file);
+
 // Remover el prefijo /uploads/ si existe
 $file = ltrim($file, '/');
 if (strpos($file, 'uploads/') === 0) {
@@ -63,16 +66,30 @@ if (!$filePath || !is_file($filePath)) {
 $realBasePath = realpath($basePath);
 if (!$filePath || !$realBasePath || strpos($filePath, $realBasePath) !== 0) {
     http_response_code(404);
-    error_log("File proxy error: File not found. Requested: $file, Base path: $basePath, Real base: $realBasePath, File path: " . ($filePath ?: 'null'));
+    error_log("File proxy error: File not found. Requested: " . $_GET['file'] . ", Processed: $file, Base path: $basePath, Real base: " . ($realBasePath ?: 'null') . ", File path: " . ($filePath ?: 'null'));
     
     // Intentar listar archivos en el directorio para debugging
     $testDir = $basePath . dirname($file);
     if (is_dir($testDir)) {
         $files = scandir($testDir);
         error_log("Files in directory $testDir: " . implode(', ', $files));
+    } else {
+        error_log("Directory does not exist: $testDir");
     }
     
-    die('Archivo no encontrado: ' . htmlspecialchars($file));
+    // Intentar con la ruta original sin procesar
+    $originalFile = urldecode($_GET['file'] ?? '');
+    $originalFile = ltrim($originalFile, '/');
+    if (strpos($originalFile, 'uploads/') === 0) {
+        $originalFile = substr($originalFile, 8);
+    }
+    $originalPath = realpath($basePath . $originalFile);
+    if ($originalPath && is_file($originalPath) && strpos($originalPath, $realBasePath) === 0) {
+        $filePath = $originalPath;
+        error_log("File found using original path: $originalPath");
+    } else {
+        die('Archivo no encontrado: ' . htmlspecialchars($file) . ' (Original: ' . htmlspecialchars($_GET['file'] ?? '') . ')');
+    }
 }
 
 // Verificar que el archivo existe

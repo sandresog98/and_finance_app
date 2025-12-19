@@ -51,8 +51,11 @@ function getAssetUrl($path) {
 
 // Función para obtener URL de archivos subidos (usa file_proxy)
 function getFileUrl($filePath) {
-    // Normalizar la ruta
+    // Normalizar la ruta - remover /uploads/ si existe al inicio
     $filePath = ltrim($filePath, '/');
+    if (strpos($filePath, 'uploads/') === 0) {
+        $filePath = substr($filePath, 8); // Remover "uploads/"
+    }
     
     // Obtener la URL base del proyecto
     $scriptName = $_SERVER['SCRIPT_NAME'];
