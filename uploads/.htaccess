@@ -1,0 +1,5 @@
+# Denegar acceso directo a archivos en uploads/
+# Los archivos deben ser servidos a través de file_proxy.php
+
+Order Deny,Allow
+Deny from all

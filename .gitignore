@@ -1,0 +1,70 @@
+# Archivos de configuración sensibles
+.env
+*.env
+!env.example
+
+# Archivos subidos por usuarios
+uploads/*
+!uploads/.htaccess
+!uploads/bancos/
+!uploads/transacciones/
+uploads/bancos/*
+uploads/transacciones/*
+!uploads/bancos/.gitkeep
+!uploads/transacciones/.gitkeep
+
+# Logs
+*.log
+logs/
+/opt/lampp/logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.cursor/
+
+# Archivos de sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Archivos de PHP
+*.cache
+composer.phar
+vendor/
+composer.lock
+
+# Archivos de backup
+*.bak
+*.backup
+*.old
+*_backup.php
+*_old.php
+
+# Archivos de sesión
+sessions/
+tmp/
+
+# Archivos de configuración local
+config.local.php
+database.local.php
+
+# Archivos de migración temporal
+sql/migrate_*.sql
+!sql/ddl.sql
+!sql/reset_db.php

@@ -1,0 +1,39 @@
+{
+  "admin": {
+    "bancos": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    }
+  },
+  "usuario": {
+    "cuentas": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "categorias": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "transacciones": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "gastos_recurrentes": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "reportes": {
+      "read": true
+    }
+  }
+}
