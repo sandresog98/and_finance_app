@@ -1,17 +1,14 @@
 <?php
 /**
- * Cerrar sesión
+ * AND FINANCE APP - User Logout
  */
 
-session_start();
+require_once __DIR__ . '/config/paths.php';
+require_once __DIR__ . '/controllers/AuthController.php';
 
-// Destruir sesión
-if (isset($_SESSION['and_finance_user'])) {
-    unset($_SESSION['and_finance_user']);
-}
+$auth = new AuthController();
+$auth->logout();
 
-session_destroy();
-
-// Redirigir al login
 header('Location: login.php');
 exit;
+

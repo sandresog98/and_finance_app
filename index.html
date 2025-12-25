@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AndFinance - Gestión de Finanzas Personales</title>
+    
+    <!-- Google Fonts - Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #55A5C8;
+            --secondary-green: #9AD082;
+            --tertiary-gray: #B1BCBF;
+            --dark-blue: #35719E;
+        }
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(180deg, #f8fafc 0%, #e9f4f8 100%);
+            min-height: 100vh;
+        }
+        
+        .hero-section {
+            padding: 100px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(85, 165, 200, 0.15) 0%, transparent 70%);
+            top: -200px;
+            right: -200px;
+            border-radius: 50%;
+        }
+        
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(154, 208, 130, 0.15) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            border-radius: 50%;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 40px rgba(53, 113, 158, 0.3);
+        }
+        
+        .hero-title {
+            font-weight: 800;
+            font-size: 56px;
+            color: var(--dark-blue);
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        
+        .hero-title span {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-subtitle {
+            font-size: 20px;
+            color: var(--tertiary-gray);
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .btn-hero {
+            padding: 16px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            border: none;
+            color: white;
+        }
+        
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(53, 113, 158, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            color: var(--dark-blue);
+        }
+        
+        .btn-outline-custom:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+        
+        .features-section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            font-weight: 800;
+            font-size: 40px;
+            color: var(--dark-blue);
+            margin-bottom: 15px;
+        }
+        
+        .section-subtitle {
+            color: var(--tertiary-gray);
+            font-size: 18px;
+            margin-bottom: 50px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 30px;
+            height: 100%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            margin-bottom: 25px;
+        }
+        
+        .feature-icon.blue {
+            background: rgba(85, 165, 200, 0.15);
+            color: var(--primary-blue);
+        }
+        
+        .feature-icon.green {
+            background: rgba(154, 208, 130, 0.15);
+            color: #5a9a3e;
+        }
+        
+        .feature-icon.orange {
+            background: rgba(245, 176, 65, 0.15);
+            color: #e67e22;
+        }
+        
+        .feature-icon.purple {
+            background: rgba(187, 143, 206, 0.15);
+            color: #9b59b6;
+        }
+        
+        .feature-title {
+            font-weight: 700;
+            font-size: 22px;
+            color: var(--dark-blue);
+            margin-bottom: 12px;
+        }
+        
+        .feature-text {
+            color: var(--tertiary-gray);
+            line-height: 1.7;
+        }
+        
+        .cta-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            right: 10%;
+        }
+        
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            bottom: -50px;
+            left: 10%;
+        }
+        
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .cta-title {
+            font-weight: 800;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .cta-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .btn-white {
+            background: white;
+            color: var(--dark-blue);
+            font-weight: 600;
+        }
+        
+        .btn-white:hover {
+            background: #f8f9fa;
+            color: var(--dark-blue);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer {
+            padding: 30px 0;
+            background: white;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .footer-text {
+            color: var(--tertiary-gray);
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+            
+            .hero-subtitle {
+                font-size: 16px;
+            }
+            
+            .btn-hero {
+                padding: 14px 30px;
+                font-size: 16px;
+                display: block;
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            .section-title {
+                font-size: 30px;
+            }
+            
+            .cta-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <div class="logo-icon">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <h1 class="hero-title">
+                        Tus finanzas, <span>bajo control</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        AndFinance te ayuda a organizar tus ingresos, gastos y ahorros de manera simple e intuitiva. 
+                        Toma el control de tu dinero hoy.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row gap-3">
+                        <a href="ui/login.php?mode=register" class="btn btn-hero btn-primary-custom">
+                            <i class="bi bi-rocket-takeoff me-2"></i>
+                            Comenzar Gratis
+                        </a>
+                        <a href="ui/login.php" class="btn btn-hero btn-outline-custom">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Iniciar Sesión
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block text-center">
+                    <img src="https://illustrations.popsy.co/amber/business-analysis.svg" 
+                         alt="Finance Illustration" 
+                         style="max-width: 100%; height: auto;">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Todo lo que necesitas</h2>
+                <p class="section-subtitle">Herramientas poderosas para gestionar tu dinero</p>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon blue">
+                            <i class="bi bi-wallet2"></i>
+                        </div>
+                        <h3 class="feature-title">Múltiples Cuentas</h3>
+                        <p class="feature-text">
+                            Administra todas tus cuentas bancarias, billeteras y tarjetas en un solo lugar.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon green">
+                            <i class="bi bi-tags"></i>
+                        </div>
+                        <h3 class="feature-title">Categorías</h3>
+                        <p class="feature-text">
+                            Organiza tus transacciones con categorías personalizables para un mejor control.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon orange">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <h3 class="feature-title">Gastos Recurrentes</h3>
+                        <p class="feature-text">
+                            Programa tus gastos fijos y nunca olvides un pago importante.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon purple">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h3 class="feature-title">Reportes Visuales</h3>
+                        <p class="feature-text">
+                            Gráficos claros para entender a dónde va tu dinero y tomar mejores decisiones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center cta-content">
+                    <h2 class="cta-title">¿Listo para tomar el control?</h2>
+                    <p class="cta-text">
+                        Únete a miles de personas que ya están mejorando su salud financiera con AndFinance.
+                    </p>
+                    <a href="ui/login.php?mode=register" class="btn btn-hero btn-white">
+                        <i class="bi bi-person-plus me-2"></i>
+                        Crear Cuenta Gratis
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="footer-text">
+                        <i class="bi bi-wallet2 me-2"></i>
+                        <strong>AndFinance</strong> &copy; 2024
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="admin/login.php" class="text-muted text-decoration-none">
+                        <small><i class="bi bi-shield-lock me-1"></i>Administración</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

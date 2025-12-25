@@ -1,0 +1,229 @@
+/**
+ * AND FINANCE APP - Admin Styles
+ * Estilos adicionales para la interfaz de administración
+ */
+
+/* Variables */
+:root {
+    --primary-blue: #55A5C8;
+    --secondary-green: #9AD082;
+    --tertiary-gray: #B1BCBF;
+    --dark-blue: #35719E;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Form Styles */
+.form-control-color {
+    width: 50px;
+    padding: 4px;
+}
+
+/* Table Styles */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    padding: 15px 0;
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(85, 165, 200, 0.15);
+    outline: none;
+}
+
+.page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    border-color: var(--primary-blue);
+}
+
+.page-link {
+    color: var(--dark-blue);
+    border-radius: 8px;
+    margin: 0 2px;
+}
+
+.page-link:hover {
+    color: var(--primary-blue);
+    background: rgba(85, 165, 200, 0.1);
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: 12px;
+}
+
+.alert-success {
+    background: rgba(154, 208, 130, 0.15);
+    color: #5a9a3e;
+}
+
+.alert-danger {
+    background: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.alert-info {
+    background: rgba(85, 165, 200, 0.15);
+    color: var(--dark-blue);
+}
+
+.alert-warning {
+    background: rgba(255, 193, 7, 0.15);
+    color: #856404;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--dark-blue);
+}
+
+.breadcrumb-item.active {
+    color: var(--tertiary-gray);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.dropdown-item {
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: rgba(85, 165, 200, 0.1);
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+/* Modal Styles */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 25px;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.modal-footer {
+    border-top: 1px solid #f0f0f0;
+    padding: 15px 25px;
+}
+
+/* Loading States */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-top: -8px;
+    margin-left: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 64px;
+    color: var(--tertiary-gray);
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: var(--dark-blue);
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: var(--tertiary-gray);
+    margin-bottom: 20px;
+}
+
+/* Utilities */
+.shadow-soft {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.rounded-lg {
+    border-radius: 12px;
+}
+
+.rounded-xl {
+    border-radius: 16px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .btn-group-sm > .btn {
+        padding: 6px 10px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .table td, .table th {
+        padding: 10px 8px;
+    }
+}
+

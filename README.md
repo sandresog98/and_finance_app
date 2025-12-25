@@ -1,333 +1,406 @@
-# And Finance App
+# AndFinance App 💰
 
-Aplicación web de gestión de gastos personales desarrollada con PHP 8.2+ y Bootstrap 5. Sistema completo para controlar ingresos, egresos, cuentas bancarias y gastos recurrentes con reportes visuales.
+Aplicación web de gestión de finanzas personales desarrollada en PHP 8.2 con Bootstrap 5. Diseñada para ser intuitiva, responsive y visualmente atractiva.
 
-## 🎯 Características Principales
+## 🚀 Características Principales
 
 ### ✅ Autenticación y Seguridad
-- Login con Email/Contraseña
-- Registro de nuevos usuarios
-- Preparado para Google OAuth
-- Sistema de roles (usuario, admin)
+- Login con email/contraseña
+- Registro con verificación por email (código de 6 dígitos)
+- Recuperación de contraseña por email
+- Sesiones independientes para admin y usuario
+- Contraseñas hasheadas con bcrypt
 - Protección de archivos en `uploads/`
+- 🔄 Login con Google OAuth (requiere configuración)
 
-### ✅ Interfaz de Administración (Admin)
-- **Módulo de Bancos**: CRUD completo para gestionar bancos colombianos
-  - Carga de logos de bancos
-  - Gestión de códigos y nombres
-  - Estados activo/inactivo
+### ✅ Interfaz de Administración (`/admin`)
+- Dashboard con estadísticas generales
+- CRUD completo de Bancos (20 bancos colombianos preconfigurados)
+- Gestión de usuarios
+- Categorías del sistema
 
-### ✅ Interfaz de Usuario (UI)
+### ✅ Interfaz de Usuario (`/ui`)
 
 #### 📊 Dashboard
-- Vista general del sistema
-- Accesos rápidos a todos los módulos
-- Información de bienvenida
+- Resumen financiero: saldo total, ingresos/gastos del mes
+- **Proyección de saldo** para fin de mes actual y siguiente
+- Gráficos de evolución y distribución
+- Últimas transacciones
+- Próximos gastos recurrentes
+- Accesos rápidos a funciones principales
+- Vista optimizada para móviles
 
-#### 💰 Módulo de Cuentas
-- Crear múltiples cuentas (bancarias, efectivo, inversión)
-- Asociar cuentas con bancos
-- Visualización de saldos actuales
-- Saldo inicial configurable
-- Actualización automática de saldos con transacciones
-- **Ajuste de saldo manual**: Permite corregir desfases estableciendo un nuevo saldo objetivo
-  - Genera automáticamente una transacción de tipo "ajuste"
-  - No requiere categoría
-  - Recalcula saldos correctamente respetando el ajuste
+#### 💳 Gestión de Cuentas
+- Crear múltiples cuentas (Billetera, Bancos, Tarjetas, etc.)
+- Selección visual de bancos con logos
+- Colores e íconos personalizables
+- Ajuste de saldo manual (genera transacción de ajuste)
+- Excluir cuentas del saldo total
+- Cuenta predeterminada
+- Eliminación con doble validación
 
-#### 🏷️ Módulo de Categorías
-- Categorías predeterminadas del sistema (no editables)
+#### 💸 Transacciones
+- Registro de ingresos, egresos y transferencias
+- Transacciones programadas (futuras, sin afectar saldo)
+- Adjuntar comprobantes (imágenes y PDFs)
+- **Visualización de comprobantes** con preview y descarga
+- Filtros avanzados por fecha, tipo, cuenta, categoría
+- Vista móvil con filtros en drawer lateral
+- Ajustes de saldo automáticos
+
+#### 🏷️ Categorías
+- Categorías del sistema predefinidas (16 de egreso, 9 de ingreso)
 - Crear categorías personalizadas
-- Gestión de iconos y colores
-- Separación por tipo: Ingresos y Egresos
-- Edición y eliminación de categorías propias
+- Subcategorías opcionales
+- Íconos y colores personalizables
+- Sistema oculta categorías del sistema en formularios de usuario
 
-#### 💸 Módulo de Transacciones (Núcleo del Sistema)
-- **Registro de transacciones**:
-  - Ingresos
-  - Egresos
-  - Transferencias entre cuentas (sin categoría requerida)
-  - Ajustes de saldo (para corregir desfases)
-- **Características**:
-  - Campo de comentario opcional
-  - Subida de múltiples archivos (comprobantes: JPG, PNG, PDF)
-  - Actualización automática de saldos
-  - Filtros avanzados (fecha, tipo, categoría, cuenta)
-  - Transferencias no requieren categoría
-  - Sistema de ajustes para corregir saldos manualmente
-- **Gestión**:
-  - Edición de transacciones (revierte y recrea)
-  - Eliminación (revierte saldos automáticamente)
-  - Historial completo con paginación
-  - Recálculo automático de saldos al eliminar ajustes
+#### 🔄 Gastos Recurrentes
+- Programar gastos/ingresos automáticos
+- Frecuencia mensual con selección de día
+- Vista de próximos 30 días
+- Registro manual de pagos
+- Manejo inteligente de días (ej: día 31 en meses cortos)
+- Creación automática de transacciones programadas
 
-#### 🔄 Módulo de Gastos Recurrentes
-- **Programación de gastos**:
-  - Frecuencia: Mensual, Quincenal, Semanal
-  - Día del mes de ejecución (1-31)
-  - Asociación con cuenta y categoría
-- **Proyección Visual**:
-  - Vista del mes actual con total proyectado
-  - Vista del mes siguiente con total proyectado
-  - Estado de cada gasto (ejecutado/pendiente)
-- **Ejecución**:
-  - Botón para ejecutar gastos pendientes
-  - Crea automáticamente la transacción
-  - Control de ejecuciones (evita duplicados)
+#### 📊 Reportes
+- Evolución de ingresos vs gastos (gráfico de barras)
+- Gráfico de distribución por categoría (donut)
+- Filtros por período: mes actual, anterior, año, personalizado
+- Saldos por cuenta
+- Vista optimizada para móviles
 
-#### 📈 Módulo de Reportes
-- **Gráficos Visuales**:
-  - Gráfico de línea: Ingresos vs. Egresos por mes (últimos 3 meses, actual y siguiente)
-  - Gráfico de dona: Distribución de gastos por categoría
-- **Resumen Financiero**:
-  - Total de ingresos
-  - Total de egresos
-  - Balance (ingresos - egresos)
-- **Análisis por Categoría**:
-  - Top 10 gastos por categoría
-  - Top 10 ingresos por categoría
-- **Filtros Avanzados**:
-  - Mes actual
-  - Mes anterior
-  - Año actual
-  - Año completo (seleccionable)
-  - Rango personalizado de fechas
+#### 📈 Presupuestos
+- Establecer límites de gasto por categoría
+- Seguimiento visual del progreso
+- Alertas configurables (50% - 100%)
+- Copiar presupuestos del mes anterior
+- Vista mensual con navegación
 
-### 🎨 Onboarding Automático
-Al crear un nuevo usuario, el sistema genera automáticamente:
-- Una cuenta por defecto llamada "Billetera" (Efectivo)
-- Un set completo de categorías predeterminadas:
-  - **Ingresos**: Salario, Inversiones, Bonos, Otros Ingresos
-  - **Egresos**: Hogar, Comida, Transporte, Salud, Educación, Entretenimiento, Ropa, Servicios, Otros Gastos
+#### 👤 Perfil
+- Editar datos personales
+- Cambiar contraseña (formulario colapsable)
+- Preferencias: moneda, **tema (claro/oscuro/auto)**, notificaciones
+- Estadísticas del usuario
 
-## 🛠️ Requisitos
+### 🌙 Tema Oscuro
+- Soporte completo de tema oscuro
+- Opción automática según preferencia del sistema
+- Cambio en tiempo real desde el perfil
 
-- PHP 8.2 o superior
-- MariaDB 11.8.3 o superior
-- Apache con mod_rewrite
-- Extensiones PHP:
-  - PDO
-  - PDO_MySQL
-  - GD (para procesamiento de imágenes)
-  - mbstring
+## 🎨 Paleta de Colores
 
-## 📦 Instalación
+| Color | Código | Uso |
+|-------|--------|-----|
+| Azul Primario | `#55A5C8` | Color principal |
+| Verde Secundario | `#9AD082` | Acentos, ingresos, éxito |
+| Gris Terciario | `#B1BCBF` | Fondos, bordes |
+| Azul Oscuro | `#35719E` | Encabezados, énfasis |
+| Rojo Gasto | `#FF6B6B` | Egresos, alertas, peligro |
+| Amarillo | `#F7DC6F` | Advertencias |
 
-### 1. Configurar Base de Datos
+## 🖼️ Logos de la Aplicación
 
-Crear el archivo `.env` basado en `env.example`:
+Los logos deben ubicarse en `assets/img/`:
 
-```bash
-cp env.example .env
-```
+| Archivo | Dimensiones | Uso | Formato |
+|---------|-------------|-----|---------|
+| `logo-square.png` | 512x512 px | Favicon, PWA, Index | PNG transparente |
+| `logo-horizontal.png` | 280x60 px | Login sidebar, Sidebar interno | PNG transparente |
+| `logo-horizontal-white.png` | 280x60 px | Login mobile (fondo oscuro) | PNG blanco transparente |
 
-Editar `.env` con tus credenciales:
-
-```env
-DB_HOST=localhost
-DB_NAME=and_finance_db
-DB_USER=root
-DB_PASS=
-
-GOOGLE_CLIENT_ID=your_google_client_id_here
-GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-GOOGLE_REDIRECT_URI=http://localhost/and_finance_app/ui/login.php
-
-APP_URL=http://localhost/and_finance_app
-APP_NAME=And Finance App
-SESSION_LIFETIME=7200
-```
-
-### 2. Crear Base de Datos
-
-**Opción A: Script automático**
-```bash
-php sql/reset_db.php
-```
-
-**Opción B: Manual**
-```bash
-mysql -u root -p < sql/ddl.sql
-```
-
-O ejecutar manualmente el archivo `sql/ddl.sql` en MariaDB.
-
-### 3. Configurar Permisos
-
-```bash
-chmod -R 755 uploads/
-```
-
-### 4. Acceder a la Aplicación
-
-- **Usuarios**: `http://localhost/and_finance_app/ui/login.php`
-- **Admin**: `http://localhost/and_finance_app/admin/index.php`
-
-## 🔐 Credenciales por Defecto
-
-### Usuario Administrador
-- **Email**: `admin@andfinance.com`
-- **Contraseña**: `admin123`
-- **Rol**: `admin`
-
-> ⚠️ **IMPORTANTE**: Cambiar la contraseña después del primer login.
-
-### Crear Admin Manualmente
-
-Si necesitas crear o actualizar el administrador:
-
-```bash
-php admin/create_admin.php
-```
-
-O desde el navegador:
-```
-http://localhost/and_finance_app/admin/create_admin.php?token=create_admin_2024
-```
+**Favicon:** Ubicar en `assets/favicons/favicon.ico` (32x32 px)
 
 ## 📁 Estructura del Proyecto
 
 ```
 and_finance_app/
-├── admin/                      # Interfaz de administración
-│   ├── modules/
-│   │   └── bancos/            # CRUD de bancos
-│   │       ├── api/
-│   │       ├── models/
-│   │       └── pages/
-│   ├── views/layouts/         # Header, footer, sidebar
+├── admin/                        # Panel de administración
 │   ├── config/
 │   │   └── paths.php
-│   ├── index.php
-│   └── create_admin.php
-│
-├── ui/                         # Interfaz de usuario
+│   ├── controllers/
+│   │   └── AuthController.php
 │   ├── modules/
-│   │   ├── cuentas/           # Gestión de cuentas
-│   │   ├── categorias/        # Gestión de categorías
-│   │   ├── transacciones/     # Registro de transacciones
-│   │   ├── gastos_recurrentes/# Gastos programados
-│   │   └── reportes/          # Gráficos y estadísticas
+│   │   └── bancos/
+│   │       ├── models/
+│   │       │   └── BancoModel.php
+│   │       └── pages/
+│   │           ├── index.php
+│   │           ├── crear.php
+│   │           └── editar.php
+│   ├── pages/
+│   │   └── dashboard.php
+│   ├── utils/
+│   │   └── session.php
 │   ├── views/layouts/
-│   ├── config/
+│   │   ├── header.php
+│   │   └── footer.php
 │   ├── index.php
 │   ├── login.php
 │   └── logout.php
 │
-├── utils/                      # Utilidades globales
-│   ├── Database.php           # Conexión a BD
-│   ├── Env.php                # Variables de entorno
-│   ├── Auth.php               # Autenticación
-│   └── FileUploadManager.php  # Gestión de archivos
+├── ui/                           # Interfaz de usuario
+│   ├── config/
+│   │   └── paths.php
+│   ├── controllers/
+│   │   └── AuthController.php
+│   ├── models/
+│   │   ├── UserModel.php
+│   │   └── VerificacionModel.php
+│   ├── modules/
+│   │   ├── cuentas/
+│   │   │   ├── api/
+│   │   │   │   └── info_eliminar.php
+│   │   │   ├── models/
+│   │   │   │   └── CuentaModel.php
+│   │   │   └── pages/
+│   │   │       ├── index.php
+│   │   │       ├── crear.php
+│   │   │       ├── editar.php
+│   │   │       └── ajustar.php
+│   │   ├── transacciones/
+│   │   │   ├── api/
+│   │   │   │   ├── get_archivos.php
+│   │   │   │   └── ver_archivo.php
+│   │   │   ├── models/
+│   │   │   │   └── TransaccionModel.php
+│   │   │   └── pages/
+│   │   │       ├── index.php
+│   │   │       ├── crear.php
+│   │   │       └── editar.php
+│   │   ├── categorias/
+│   │   │   ├── models/
+│   │   │   │   └── CategoriaModel.php
+│   │   │   └── pages/
+│   │   │       ├── index.php
+│   │   │       ├── crear.php
+│   │   │       └── editar.php
+│   │   ├── recurrentes/
+│   │   │   ├── models/
+│   │   │   │   └── GastoRecurrenteModel.php
+│   │   │   └── pages/
+│   │   │       ├── index.php
+│   │   │       ├── crear.php
+│   │   │       └── editar.php
+│   │   ├── presupuestos/
+│   │   │   ├── models/
+│   │   │   │   └── PresupuestoModel.php
+│   │   │   └── pages/
+│   │   │       ├── index.php
+│   │   │       ├── crear.php
+│   │   │       └── editar.php
+│   │   ├── reportes/
+│   │   │   └── pages/
+│   │   │       └── index.php
+│   │   └── perfil/
+│   │       └── pages/
+│   │           └── index.php
+│   ├── pages/
+│   │   └── dashboard.php
+│   ├── utils/
+│   │   └── session.php
+│   ├── views/layouts/
+│   │   ├── header.php
+│   │   └── footer.php
+│   ├── index.php
+│   ├── login.php
+│   └── logout.php
 │
 ├── assets/
 │   ├── css/
-│   │   └── common.css         # Estilos con variables CSS
-│   ├── img/
-│   └── js/
+│   │   ├── admin.css
+│   │   └── app.css
+│   ├── favicons/
+│   │   └── favicon.ico
+│   ├── img/                      # Logos de la app
+│   │   └── .gitkeep
+│   └── PHPMailer/
+│       ├── EmailHelper.php
+│       ├── Exception.php
+│       ├── PHPMailer.php
+│       └── SMTP.php
+│
+├── config/
+│   └── database.php
 │
 ├── sql/
-│   ├── ddl.sql                # Script de creación de BD
-│   └── reset_db.php           # Script de reinicio
+│   ├── ddl.sql                   # Script de creación de BD
+│   └── reset_db.php              # Script de reinicio de BD
 │
-├── uploads/                    # Archivos subidos (protegido)
-│   ├── bancos/
-│   └── transacciones/
+├── uploads/                      # Archivos subidos (protegido)
+│   ├── bancos/                   # Logos de bancos
+│   └── transacciones/            # Comprobantes por usuario
 │
-├── roles.json                  # Configuración de roles
-├── .env                        # Variables de entorno (no versionado)
+├── .env                          # Variables de entorno (NO en git)
+├── .env.example                  # Plantilla de variables
+├── .gitignore                    # Archivos ignorados por git
+├── .htaccess                     # Configuración Apache
+├── index.html                    # Página de bienvenida
+├── roles.json                    # Definición de roles
 └── README.md
 ```
 
-## 🎨 Paleta de Colores
+## 🛠️ Instalación
 
-El sistema utiliza una paleta de colores consistente definida en `assets/css/common.css`:
+### Requisitos
+- PHP 8.2+
+- MariaDB 11.8.3+ / MySQL 8.0+
+- XAMPP o servidor web con Apache
+- Extensiones PHP: PDO, pdo_mysql, mbstring
 
-- **Primary**: `#39843A` (Verde)
-- **Secondary**: `#F1B10B` (Amarillo)
-- **Third**: `#1F4738` (Verde oscuro)
-- **Fourth**: `#31424B` (Gris azulado)
+### Pasos
+
+1. **Clonar/Copiar el proyecto** a tu directorio web:
+   ```bash
+   git clone <repositorio> and_finance_app
+   # o
+   cp -r and_finance_app /Applications/XAMPP/xamppfiles/htdocs/process/
+   ```
+
+2. **Crear el archivo `.env`**:
+   ```bash
+   cp .env.example .env
+   # Editar con tus credenciales
+   ```
+
+   Contenido del `.env`:
+   ```env
+   # Base de datos
+   DB_HOST=localhost
+   DB_NAME=and_finance_app
+   DB_USER=root
+   DB_PASS=
+   
+   # Google OAuth (opcional)
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   
+   # SMTP para emails
+   SMTP_HOST=smtp.example.com
+   SMTP_USER=no-reply@example.com
+   SMTP_PASS=your_password
+   SMTP_PORT=465
+   ```
+
+3. **Crear la base de datos**:
+   ```bash
+   # Opción 1: Ejecutar SQL directamente
+   mysql -u root < sql/ddl.sql
+   
+   # Opción 2: Usar el script PHP
+   php sql/reset_db.php
+   ```
+
+4. **Configurar permisos**:
+   ```bash
+   chmod -R 755 uploads/
+   ```
+
+5. **Subir logos** (opcional):
+   - Colocar logos en `assets/img/`
+   - Ver especificaciones en la sección "Logos de la Aplicación"
+
+6. **Acceder a la aplicación**:
+   - Bienvenida: `http://localhost/process/and_finance_app/`
+   - Admin: `http://localhost/process/and_finance_app/admin/`
+   - Usuario: `http://localhost/process/and_finance_app/ui/`
+
+### Credenciales por defecto (Admin)
+- **Email:** admin@andfinance.com
+- **Contraseña:** Admin123!
 
 ## 📊 Base de Datos
 
 ### Tablas Principales
 
-- `control_usuarios` - Usuarios del sistema
-- `bancos_bancos` - Bancos disponibles
-- `cuentas_cuentas` - Cuentas de los usuarios
-- `categorias_categorias` - Categorías de transacciones
-- `transacciones_transacciones` - Registro de transacciones
-- `transacciones_archivos` - Archivos adjuntos
-- `gastos_recurrentes_gastos` - Gastos programados
-- `gastos_recurrentes_ejecuciones` - Historial de ejecuciones
+| Tabla | Descripción |
+|-------|-------------|
+| `usuarios` | Usuarios del sistema |
+| `bancos` | Catálogo de bancos |
+| `cuentas` | Cuentas financieras del usuario |
+| `categorias` | Categorías de transacciones |
+| `subcategorias` | Subcategorías opcionales |
+| `transacciones` | Movimientos financieros |
+| `transaccion_archivos` | Comprobantes adjuntos |
+| `gastos_recurrentes` | Programación de gastos |
+| `presupuestos` | Presupuestos mensuales |
+| `verificacion_codigos` | Códigos de verificación email |
+| `configuracion_usuario` | Preferencias del usuario |
+| `sesiones` | Control de sesiones activas |
 
-### Características de BD
+### Convenciones
+- **Sin foreign keys** a nivel de motor (relaciones por aplicación)
+- **Sin ENUMs** (valores documentados en comentarios)
+- Prefijos de tabla por módulo cuando aplique
+- `estado`: 0=inactivo/eliminado, 1=activo
+- `realizada`: 0=programada, 1=realizada (en transacciones)
 
-- **Sin Foreign Keys**: Las relaciones se manejan a nivel de aplicación
-- **Nomenclatura**: Tablas prefijadas por módulo (ej: `cuentas_cuentas`)
-- **Integridad**: Validación en la capa de aplicación PHP
+## 📝 Onboarding de Usuarios
+
+Al registrarse un nuevo usuario, el sistema automáticamente:
+1. Envía código de verificación por email
+2. Al verificar, crea una cuenta "Billetera" (efectivo) predeterminada
+3. Copia las categorías del sistema al usuario
+4. Crea la configuración inicial (tema, moneda, etc.)
 
 ## 🔒 Seguridad
 
-- Archivos en `uploads/` accesibles directamente (igual que en we_are_app)
-- Contraseñas hasheadas con `password_hash()`
-- Validación de permisos mediante `roles.json`
-- Sanitización de inputs en todos los formularios
+- Contraseñas hasheadas con `bcrypt` (PASSWORD_DEFAULT)
+- Verificación de email con códigos temporales (15 min)
+- Sesiones PHP con nombre personalizado (`and_finance_user`, `and_finance_admin`)
+- Protección de archivos en `uploads/` vía `.htaccess`
+- Validación de roles vía `roles.json`
+- Credenciales en archivo `.env` (excluido de git)
+- Validación de propiedad de recursos en cada operación
 
-## 📝 Notas de Desarrollo
+## 📱 Responsive Design
 
-- **Tipografía**: Poppins (ExtraBold para títulos, Regular para cuerpo)
-- **Framework CSS**: Bootstrap 5.3.2
-- **Gráficos**: Chart.js 4.4.0
-- **Iconos**: Font Awesome 6.4.0
-- **Límites de archivos**: Imágenes 5MB, PDFs 10MB
-- **Renombrado de archivos**: Formato único para evitar sobrescritura
+La aplicación está optimizada para dispositivos móviles:
+- Dashboard compacto con estadísticas en una fila
+- Filtros en drawer lateral (offcanvas)
+- Listas en formato de tarjetas
+- Botones flotantes de acción rápida
+- Modales de selección visual (bancos, categorías, etc.)
+- Gráficos adaptados al tamaño de pantalla
 
-## 🚀 Funcionalidades Futuras
+## 🔧 Funcionalidades Técnicas
 
-- Integración completa de Google OAuth
-- Exportación de reportes a PDF/Excel
-- Notificaciones de gastos recurrentes
-- Presupuestos y límites por categoría
-- Múltiples monedas
-- App móvil
+### Transacciones Programadas
+- Campo `realizada` en transacciones: 0=programada (no afecta saldo), 1=realizada
+- Los gastos recurrentes crean transacciones programadas automáticamente
+- Las transacciones programadas se pueden marcar como realizadas
 
-## 🔧 Desarrollo
+### Ajuste de Saldo
+- Tipo de transacción especial: `ajuste`
+- No usa categorías del sistema
+- Calcula automáticamente la diferencia
+- Íconos distintos para ajustes positivos/negativos
 
-### Estructura de Archivos
+### Eliminación de Cuentas
+- Eliminación física (hard delete)
+- Elimina transacciones normales asociadas
+- Las transferencias se desasocian (no se eliminan)
+- Requiere doble confirmación con información detallada
 
-- **Modular**: Cada módulo tiene su propia carpeta con `api/`, `models/`, `pages/`
-- **Separación de interfaces**: `admin/` y `ui/` son interfaces independientes
-- **Utilidades compartidas**: `utils/` contiene clases reutilizables
+### Sistema de Emails
+- PHPMailer integrado para envío de correos
+- Verificación de registro por código
+- Recuperación de contraseña por código
+- Plantillas HTML para emails
 
-### Convenciones de Código
+## 🚧 Roadmap / Pendientes
 
-- PHP 8.2+ con tipado estricto
-- PDO para acceso a base de datos
-- Sin frameworks externos (PHP puro)
-- Bootstrap 5 para UI
-- Chart.js para gráficos
-
-### Base de Datos
-
-- **Sin Foreign Keys**: Las relaciones se validan en la capa de aplicación
-- **Nomenclatura**: `modulo_tabla` (ej: `transacciones_transacciones`)
-- **Tipos de transacciones**: `ingreso`, `egreso`, `transferencia`, `ajuste`
-- **Ajustes de saldo**: Tipo especial que establece el saldo directamente sin categoría
-
-### Migraciones
-
-Si necesitas aplicar cambios en la base de datos, crea un script SQL en `sql/migrate_*.sql` y ejecútalo manualmente.
+- [ ] Integración completa con Google OAuth
+- [ ] Notificaciones push en tiempo real
+- [ ] Exportación a Excel/PDF
+- [ ] Soporte multi-moneda completo
+- [ ] App móvil (PWA)
+- [ ] Sincronización con bancos (Open Banking)
 
 ## 📄 Licencia
 
-Proyecto privado - Todos los derechos reservados
-
-## 👥 Soporte
-
-Para reportar problemas o sugerencias, contactar al equipo de desarrollo.
+Proyecto privado - Todos los derechos reservados.
 
 ---
 
-**Versión**: 1.1.0  
-**Última actualización**: Diciembre 2025
+**Desarrollado con ❤️ usando PHP 8.2, Bootstrap 5 y Chart.js**

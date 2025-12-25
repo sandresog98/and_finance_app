@@ -1,208 +1,405 @@
--- ============================================
--- AND FINANCE APP - Base de Datos
--- MariaDB 11.8.3-log
--- ============================================
+-- =====================================================
+-- AND FINANCE APP - DDL (Data Definition Language)
+-- Base de datos para gestión de finanzas personales
+-- MariaDB 11.8.3
+-- =====================================================
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS and_finance_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE and_finance_db;
+CREATE DATABASE IF NOT EXISTS and_finance_app 
+CHARACTER SET utf8mb4 
+COLLATE utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: control_usuarios
--- ============================================
-CREATE TABLE IF NOT EXISTS control_usuarios (
+USE and_finance_app;
+
+-- =====================================================
+-- TABLA: usuarios
+-- Almacena información de usuarios del sistema
+-- =====================================================
+CREATE OR REPLACE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NULL, -- NULL si se registra solo con Google
-    nombre_completo VARCHAR(255) NOT NULL,
-    google_id VARCHAR(255) NULL UNIQUE, -- ID de Google OAuth
-    avatar_url VARCHAR(500) NULL, -- URL del avatar de Google
-    rol VARCHAR(50) NOT NULL DEFAULT 'usuario', -- usuario, admin
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_google_id (google_id),
-    INDEX idx_rol (rol)
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NULL COMMENT 'NULL si usa Google Auth',
+    google_id VARCHAR(100) NULL UNIQUE COMMENT 'ID de Google para OAuth',
+    avatar VARCHAR(255) NULL COMMENT 'URL o ruta del avatar',
+    rol VARCHAR(50) NOT NULL DEFAULT 'usuario' COMMENT 'Valores: admin, usuario',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=inactivo, 1=activo',
+    onboarding_completado INT NOT NULL DEFAULT 0 COMMENT '0=no, 1=si',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ultimo_acceso DATETIME NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: bancos_bancos
--- ============================================
-CREATE TABLE IF NOT EXISTS bancos_bancos (
+-- =====================================================
+-- TABLA: bancos
+-- Catálogo de bancos disponibles (gestionado por admin)
+-- =====================================================
+CREATE OR REPLACE TABLE bancos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    logo_url VARCHAR(500) NULL, -- Ruta al logo del banco
-    codigo VARCHAR(50) NULL, -- Código del banco (ej: BANCOLOMBIA, DAVIVIENDA)
-    pais VARCHAR(100) NOT NULL DEFAULT 'Colombia',
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_nombre (nombre),
-    INDEX idx_estado (estado_activo)
+    nombre VARCHAR(100) NOT NULL,
+    codigo VARCHAR(20) NULL COMMENT 'Código bancario si aplica',
+    logo VARCHAR(255) NULL COMMENT 'Ruta al logo del banco',
+    color_primario VARCHAR(7) NULL COMMENT 'Color hex del banco',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=inactivo, 1=activo',
+    orden INT DEFAULT 0 COMMENT 'Orden de aparición',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: cuentas_cuentas
--- ============================================
-CREATE TABLE IF NOT EXISTS cuentas_cuentas (
+-- =====================================================
+-- TABLA: cuentas
+-- Cuentas financieras del usuario (billetera, bancos, etc)
+-- =====================================================
+CREATE OR REPLACE TABLE cuentas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL, -- Referencia a control_usuarios.id (sin FK)
-    nombre VARCHAR(255) NOT NULL,
-    banco_id INT NULL, -- Referencia a bancos_bancos.id (sin FK), NULL para efectivo
-    saldo_inicial DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
-    saldo_actual DECIMAL(15, 2) NOT NULL DEFAULT 0.00,
-    tipo VARCHAR(50) NOT NULL DEFAULT 'bancaria', -- bancaria, efectivo, inversion
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_banco (banco_id),
-    INDEX idx_tipo (tipo)
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    banco_id INT NULL COMMENT 'Referencia a bancos.id, NULL si es efectivo',
+    banco_personalizado VARCHAR(100) NULL COMMENT 'Nombre del banco si es personalizado',
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(50) NOT NULL DEFAULT 'efectivo' COMMENT 'Valores: efectivo, cuenta_ahorro, cuenta_corriente, tarjeta_credito, inversion',
+    saldo_inicial DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    saldo_actual DECIMAL(15,2) NOT NULL DEFAULT 0.00,
+    moneda VARCHAR(3) NOT NULL DEFAULT 'COP' COMMENT 'Código ISO moneda',
+    color VARCHAR(7) NULL COMMENT 'Color personalizado para la cuenta',
+    icono VARCHAR(50) NULL COMMENT 'Clase de icono Bootstrap',
+    es_predeterminada INT NOT NULL DEFAULT 0 COMMENT '0=no, 1=si',
+    incluir_en_total INT NOT NULL DEFAULT 1 COMMENT '0=no incluir en balance total, 1=incluir',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=inactivo, 1=activo',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: categorias_categorias
--- ============================================
-CREATE TABLE IF NOT EXISTS categorias_categorias (
+-- =====================================================
+-- TABLA: categorias
+-- Categorías para clasificar transacciones
+-- =====================================================
+CREATE OR REPLACE TABLE categorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NULL, -- NULL para categorías predeterminadas del sistema
-    nombre VARCHAR(255) NOT NULL,
-    tipo VARCHAR(50) NOT NULL, -- ingreso, egreso
-    icono VARCHAR(100) NULL, -- Nombre del icono (ej: fa-home, fa-car)
-    color VARCHAR(7) NULL, -- Color hex para UI (ej: #39843A)
-    es_predeterminada BOOLEAN NOT NULL DEFAULT FALSE,
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_tipo (tipo),
-    INDEX idx_predeterminada (es_predeterminada)
+    usuario_id INT NULL COMMENT 'NULL=categoría del sistema, valor=categoría personalizada del usuario',
+    nombre VARCHAR(100) NOT NULL,
+    tipo VARCHAR(20) NOT NULL COMMENT 'Valores: ingreso, egreso',
+    icono VARCHAR(50) NULL COMMENT 'Clase de icono Bootstrap',
+    color VARCHAR(7) NULL COMMENT 'Color hex de la categoría',
+    es_sistema INT NOT NULL DEFAULT 0 COMMENT '0=personalizada, 1=del sistema',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=inactivo, 1=activo',
+    orden INT DEFAULT 0,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: transacciones_transacciones
--- ============================================
-CREATE TABLE IF NOT EXISTS transacciones_transacciones (
+-- =====================================================
+-- TABLA: subcategorias
+-- Subcategorías opcionales para mayor detalle
+-- =====================================================
+CREATE OR REPLACE TABLE subcategorias (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL, -- Referencia a control_usuarios.id (sin FK)
-    cuenta_id INT NOT NULL, -- Referencia a cuentas_cuentas.id (sin FK)
-    categoria_id INT NULL, -- Referencia a categorias_categorias.id (sin FK). NULL para transferencias
-    tipo VARCHAR(50) NOT NULL, -- ingreso, egreso, transferencia
-    monto DECIMAL(15, 2) NOT NULL,
-    fecha DATE NOT NULL,
-    comentario TEXT NULL,
-    cuenta_destino_id INT NULL, -- Para transferencias: cuenta destino (sin FK)
-    es_programada BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE si es transacción programada (fecha futura). Las programadas no afectan el saldo actual hasta su fecha de ejecución. Se usan para proyecciones de saldo.
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_cuenta (cuenta_id),
-    INDEX idx_categoria (categoria_id),
-    INDEX idx_tipo (tipo),
-    INDEX idx_fecha (fecha),
-    INDEX idx_cuenta_destino (cuenta_destino_id),
-    INDEX idx_es_programada (es_programada)
+    categoria_id INT NOT NULL COMMENT 'Referencia a categorias.id',
+    usuario_id INT NULL COMMENT 'NULL=del sistema, valor=personalizada',
+    nombre VARCHAR(100) NOT NULL,
+    icono VARCHAR(50) NULL,
+    estado INT NOT NULL DEFAULT 1,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: transacciones_archivos
--- ============================================
-CREATE TABLE IF NOT EXISTS transacciones_archivos (
+-- =====================================================
+-- TABLA: transacciones
+-- Registro de todos los movimientos financieros
+-- =====================================================
+CREATE OR REPLACE TABLE transacciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    transaccion_id INT NOT NULL, -- Referencia a transacciones_transacciones.id (sin FK)
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    cuenta_id INT NOT NULL COMMENT 'Referencia a cuentas.id',
+    categoria_id INT NULL COMMENT 'Referencia a categorias.id',
+    subcategoria_id INT NULL COMMENT 'Referencia a subcategorias.id',
+    tipo VARCHAR(20) NOT NULL COMMENT 'Valores: ingreso, egreso, transferencia, ajuste',
+    monto DECIMAL(15,2) NOT NULL,
+    descripcion VARCHAR(255) NULL COMMENT 'Descripción corta',
+    comentario TEXT NULL COMMENT 'Notas adicionales detalladas',
+    fecha_transaccion DATE NOT NULL,
+    hora_transaccion TIME NULL,
+    -- Campos para transferencias
+    cuenta_destino_id INT NULL COMMENT 'Referencia a cuentas.id para transferencias',
+    transferencia_id INT NULL COMMENT 'ID de la transacción relacionada en transferencias',
+    -- Campos de control
+    es_recurrente INT NOT NULL DEFAULT 0 COMMENT '0=no, 1=si',
+    gasto_recurrente_id INT NULL COMMENT 'Referencia a gastos_recurrentes.id si aplica',
+    realizada INT NOT NULL DEFAULT 1 COMMENT '0=programada/pendiente (no afecta saldo), 1=realizada (afecta saldo)',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=anulada, 1=activa',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- TABLA: transaccion_archivos
+-- Archivos adjuntos a transacciones (comprobantes)
+-- =====================================================
+CREATE OR REPLACE TABLE transaccion_archivos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transaccion_id INT NOT NULL COMMENT 'Referencia a transacciones.id',
     nombre_original VARCHAR(255) NOT NULL,
-    nombre_archivo VARCHAR(255) NOT NULL, -- Nombre único en el servidor
+    nombre_archivo VARCHAR(255) NOT NULL COMMENT 'Nombre en el servidor',
     ruta VARCHAR(500) NOT NULL,
-    tipo_mime VARCHAR(100) NOT NULL,
-    tamano INT NOT NULL, -- Tamaño en bytes
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_transaccion (transaccion_id)
+    tipo_archivo VARCHAR(50) NOT NULL COMMENT 'Valores: imagen, pdf',
+    mime_type VARCHAR(100) NOT NULL,
+    tamano INT NOT NULL COMMENT 'Tamaño en bytes',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: gastos_recurrentes_gastos
--- ============================================
-CREATE TABLE IF NOT EXISTS gastos_recurrentes_gastos (
+-- =====================================================
+-- TABLA: gastos_recurrentes
+-- Programación de gastos automáticos
+-- =====================================================
+CREATE OR REPLACE TABLE gastos_recurrentes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_id INT NOT NULL, -- Referencia a control_usuarios.id (sin FK)
-    cuenta_id INT NOT NULL, -- Referencia a cuentas_cuentas.id (sin FK)
-    categoria_id INT NOT NULL, -- Referencia a categorias_categorias.id (sin FK)
-    nombre VARCHAR(255) NOT NULL,
-    monto DECIMAL(15, 2) NOT NULL,
-    dia_mes INT NOT NULL, -- Día del mes (1-31) en que se ejecuta
-    tipo VARCHAR(50) NOT NULL DEFAULT 'mensual', -- mensual, quincenal, semanal, bimestral, trimestral, semestral, anual
-    estado_activo BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_usuario (usuario_id),
-    INDEX idx_cuenta (cuenta_id),
-    INDEX idx_categoria (categoria_id),
-    INDEX idx_dia_mes (dia_mes)
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    cuenta_id INT NOT NULL COMMENT 'Referencia a cuentas.id',
+    categoria_id INT NOT NULL COMMENT 'Referencia a categorias.id',
+    subcategoria_id INT NULL,
+    nombre VARCHAR(100) NOT NULL COMMENT 'Nombre identificador del gasto',
+    monto DECIMAL(15,2) NOT NULL,
+    tipo VARCHAR(20) NOT NULL DEFAULT 'egreso' COMMENT 'Valores: ingreso, egreso',
+    frecuencia VARCHAR(20) NOT NULL COMMENT 'Valores: diario, semanal, quincenal, mensual, anual',
+    dia_ejecucion INT NULL COMMENT 'Día del mes (1-31) o día de la semana (1-7)',
+    dias_ejecucion VARCHAR(100) NULL COMMENT 'Múltiples días separados por coma. Ej: 5,15,25',
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE NULL COMMENT 'NULL=indefinido',
+    ultima_ejecucion DATE NULL,
+    proxima_ejecucion DATE NULL,
+    notificar INT NOT NULL DEFAULT 1 COMMENT '0=no notificar, 1=notificar',
+    dias_anticipacion INT DEFAULT 1 COMMENT 'Días antes para notificar',
+    auto_registrar INT NOT NULL DEFAULT 0 COMMENT '0=solo notificar, 1=registrar automáticamente',
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=pausado, 1=activo',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- TABLA: gastos_recurrentes_ejecuciones
--- ============================================
-CREATE TABLE IF NOT EXISTS gastos_recurrentes_ejecuciones (
+-- =====================================================
+-- TABLA: presupuestos
+-- Presupuestos mensuales por categoría
+-- =====================================================
+CREATE OR REPLACE TABLE presupuestos (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    gasto_recurrente_id INT NOT NULL, -- Referencia a gastos_recurrentes_gastos.id (sin FK)
-    transaccion_id INT NULL, -- Referencia a transacciones_transacciones.id (sin FK) si se ejecutó
-    mes INT NOT NULL, -- Mes (1-12)
-    anio INT NOT NULL, -- Año (ej: 2024)
-    ejecutado BOOLEAN NOT NULL DEFAULT FALSE,
-    ignorado BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE si el usuario decidió ignorar este gasto para este mes
-    fecha_ejecucion TIMESTAMP NULL,
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_gasto_recurrente (gasto_recurrente_id),
-    INDEX idx_mes_anio (mes, anio),
-    INDEX idx_transaccion (transaccion_id),
-    INDEX idx_ignorado (ignorado),
-    UNIQUE KEY unique_gasto_mes_anio (gasto_recurrente_id, mes, anio)
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    categoria_id INT NOT NULL COMMENT 'Referencia a categorias.id',
+    monto_limite DECIMAL(15,2) NOT NULL,
+    mes INT NOT NULL COMMENT '1-12',
+    anio INT NOT NULL,
+    alertar_al INT DEFAULT 80 COMMENT 'Porcentaje para alertar',
+    estado INT NOT NULL DEFAULT 1,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_presupuesto (usuario_id, categoria_id, mes, anio)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- INSERTS INICIALES
--- ============================================
+-- =====================================================
+-- TABLA: etiquetas
+-- Etiquetas personalizadas para transacciones
+-- =====================================================
+CREATE OR REPLACE TABLE etiquetas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    nombre VARCHAR(50) NOT NULL,
+    color VARCHAR(7) NULL,
+    estado INT NOT NULL DEFAULT 1,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insertar categorías predeterminadas del sistema
-INSERT INTO categorias_categorias (nombre, tipo, icono, color, es_predeterminada, usuario_id) VALUES
--- Ingresos
-('Salario', 'ingreso', 'fa-money-bill-wave', '#39843A', TRUE, NULL),
-('Inversiones', 'ingreso', 'fa-chart-line', '#39843A', TRUE, NULL),
-('Bonos', 'ingreso', 'fa-gift', '#39843A', TRUE, NULL),
-('Otros Ingresos', 'ingreso', 'fa-wallet', '#39843A', TRUE, NULL),
--- Egresos
-('Hogar', 'egreso', 'fa-home', '#F1B10B', TRUE, NULL),
-('Comida', 'egreso', 'fa-utensils', '#F1B10B', TRUE, NULL),
-('Transporte', 'egreso', 'fa-car', '#F1B10B', TRUE, NULL),
-('Salud', 'egreso', 'fa-heartbeat', '#F1B10B', TRUE, NULL),
-('Educación', 'egreso', 'fa-graduation-cap', '#F1B10B', TRUE, NULL),
-('Entretenimiento', 'egreso', 'fa-film', '#F1B10B', TRUE, NULL),
-('Ropa', 'egreso', 'fa-tshirt', '#F1B10B', TRUE, NULL),
-('Servicios', 'egreso', 'fa-bolt', '#F1B10B', TRUE, NULL),
-('Otros Gastos', 'egreso', 'fa-ellipsis-h', '#F1B10B', TRUE, NULL);
+-- =====================================================
+-- TABLA: transaccion_etiquetas
+-- Relación muchos a muchos entre transacciones y etiquetas
+-- =====================================================
+CREATE OR REPLACE TABLE transaccion_etiquetas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transaccion_id INT NOT NULL COMMENT 'Referencia a transacciones.id',
+    etiqueta_id INT NOT NULL COMMENT 'Referencia a etiquetas.id',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_trans_etiq (transaccion_id, etiqueta_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insertar algunos bancos colombianos comunes
-INSERT INTO bancos_bancos (nombre, codigo, pais) VALUES
-('Bancolombia', 'BANCOLOMBIA', 'Colombia'),
-('Banco de Bogotá', 'BOGOTA', 'Colombia'),
-('Davivienda', 'DAVIVIENDA', 'Colombia'),
-('Banco Popular', 'POPULAR', 'Colombia'),
-('Banco AV Villas', 'AVVILLAS', 'Colombia'),
-('Banco Caja Social', 'CAJASOCIAL', 'Colombia'),
-('Banco Agrario', 'AGRARIO', 'Colombia'),
-('Banco de Occidente', 'OCCIDENTE', 'Colombia'),
-('Banco Falabella', 'FALABELLA', 'Colombia'),
-('Nequi', 'NEQUI', 'Colombia'),
-('Daviplata', 'DAVIPLATA', 'Colombia');
+-- =====================================================
+-- TABLA: notificaciones
+-- Notificaciones del sistema para el usuario
+-- =====================================================
+CREATE OR REPLACE TABLE notificaciones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    tipo VARCHAR(50) NOT NULL COMMENT 'Valores: gasto_recurrente, presupuesto_alerta, recordatorio',
+    titulo VARCHAR(200) NOT NULL,
+    mensaje TEXT NOT NULL,
+    url_accion VARCHAR(255) NULL,
+    leida INT NOT NULL DEFAULT 0 COMMENT '0=no leída, 1=leída',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- USUARIO ADMINISTRADOR POR DEFECTO
--- ============================================
--- Email: admin@andfinance.com
--- Password: admin123
--- IMPORTANTE: Cambiar la contraseña después del primer login
-INSERT IGNORE INTO control_usuarios (email, password, nombre_completo, rol, estado_activo)
-VALUES ('admin@andfinance.com', '$2y$10$BPGSMwk9u8YeZI0U2gBJE.X7XqmESvbPBiYMCbGqjhNfsVLLGlPtK', 'Administrador', 'admin', TRUE);
+-- =====================================================
+-- TABLA: configuracion_usuario
+-- Preferencias del usuario
+-- =====================================================
+CREATE OR REPLACE TABLE configuracion_usuario (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL UNIQUE COMMENT 'Referencia a usuarios.id',
+    moneda_principal VARCHAR(3) DEFAULT 'COP',
+    tema VARCHAR(20) DEFAULT 'light' COMMENT 'Valores: light, dark, auto',
+    idioma VARCHAR(5) DEFAULT 'es',
+    formato_fecha VARCHAR(20) DEFAULT 'd/m/Y',
+    primer_dia_semana INT DEFAULT 1 COMMENT '0=domingo, 1=lunes',
+    notificaciones_email INT DEFAULT 1,
+    notificaciones_push INT DEFAULT 1,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- TABLA: sesiones
+-- Control de sesiones activas
+-- =====================================================
+CREATE OR REPLACE TABLE sesiones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL COMMENT 'Referencia a usuarios.id',
+    token VARCHAR(255) NOT NULL UNIQUE,
+    ip_address VARCHAR(45) NULL,
+    user_agent TEXT NULL,
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion DATETIME NOT NULL,
+    estado INT NOT NULL DEFAULT 1 COMMENT '0=expirada, 1=activa'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- TABLA: verificacion_codigos
+-- Códigos de verificación para email y recuperación
+-- =====================================================
+CREATE OR REPLACE TABLE verificacion_codigos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(150) NOT NULL,
+    codigo VARCHAR(10) NOT NULL,
+    tipo VARCHAR(30) NOT NULL COMMENT 'Valores: registro, recuperacion_password',
+    datos_temporales TEXT NULL COMMENT 'Datos JSON del usuario durante registro',
+    intentos INT NOT NULL DEFAULT 0 COMMENT 'Intentos de verificación fallidos',
+    usado INT NOT NULL DEFAULT 0 COMMENT '0=no usado, 1=usado',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion DATETIME NOT NULL,
+    INDEX idx_email_tipo (email, tipo),
+    INDEX idx_codigo (codigo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- ÍNDICES PARA OPTIMIZACIÓN
+-- =====================================================
+CREATE INDEX idx_transacciones_usuario ON transacciones(usuario_id);
+CREATE INDEX idx_transacciones_fecha ON transacciones(fecha_transaccion);
+CREATE INDEX idx_transacciones_cuenta ON transacciones(cuenta_id);
+CREATE INDEX idx_transacciones_categoria ON transacciones(categoria_id);
+CREATE INDEX idx_transacciones_tipo ON transacciones(tipo);
+CREATE INDEX idx_cuentas_usuario ON cuentas(usuario_id);
+CREATE INDEX idx_categorias_usuario ON categorias(usuario_id);
+CREATE INDEX idx_categorias_tipo ON categorias(tipo);
+CREATE INDEX idx_gastos_recurrentes_usuario ON gastos_recurrentes(usuario_id);
+CREATE INDEX idx_gastos_recurrentes_proxima ON gastos_recurrentes(proxima_ejecucion);
+CREATE INDEX idx_notificaciones_usuario ON notificaciones(usuario_id);
+CREATE INDEX idx_sesiones_token ON sesiones(token);
+
+-- =====================================================
+-- DATOS INICIALES - BANCOS COLOMBIANOS
+-- =====================================================
+INSERT INTO bancos (nombre, codigo, color_primario, estado, orden) VALUES
+('Bancolombia', 'BCOL', '#FDDA24', 1, 1),
+('Banco de Bogotá', 'BBOG', '#003B7A', 1, 2),
+('Davivienda', 'DAVI', '#ED1C24', 1, 3),
+('BBVA Colombia', 'BBVA', '#004481', 1, 4),
+('Banco de Occidente', 'BOCC', '#0066B3', 1, 5),
+('Banco Popular', 'BPOP', '#00529B', 1, 6),
+('Banco AV Villas', 'AVVI', '#00A651', 1, 7),
+('Banco Caja Social', 'BCSC', '#E31837', 1, 8),
+('Scotiabank Colpatria', 'SCOT', '#EC111A', 1, 9),
+('Banco Agrario', 'BAGR', '#006633', 1, 10),
+('Banco Itaú', 'ITAU', '#EC7000', 1, 11),
+('Banco Pichincha', 'PICH', '#FFD100', 1, 12),
+('Banco Falabella', 'FALA', '#B5D334', 1, 13),
+('Banco Finandina', 'FINA', '#003366', 1, 14),
+('Bancoomeva', 'COOM', '#003D7C', 1, 15),
+('Nequi', 'NEQU', '#4D1A7F', 1, 16),
+('Daviplata', 'DVPL', '#ED1C24', 1, 17),
+('Lulo Bank', 'LULO', '#6B4EFF', 1, 18),
+('Nu Colombia', 'NUCO', '#820AD1', 1, 19),
+('RappiPay', 'RAPP', '#FF441F', 1, 20);
+
+-- =====================================================
+-- DATOS INICIALES - CATEGORÍAS DEL SISTEMA
+-- =====================================================
+-- Categorías de Egreso
+INSERT INTO categorias (usuario_id, nombre, tipo, icono, color, es_sistema, orden) VALUES
+(NULL, 'Alimentación', 'egreso', 'bi-basket', '#FF6B6B', 1, 1),
+(NULL, 'Transporte', 'egreso', 'bi-car-front', '#4ECDC4', 1, 2),
+(NULL, 'Vivienda', 'egreso', 'bi-house', '#45B7D1', 1, 3),
+(NULL, 'Servicios Públicos', 'egreso', 'bi-lightning', '#96CEB4', 1, 4),
+(NULL, 'Salud', 'egreso', 'bi-heart-pulse', '#FF8B94', 1, 5),
+(NULL, 'Educación', 'egreso', 'bi-book', '#DDA0DD', 1, 6),
+(NULL, 'Entretenimiento', 'egreso', 'bi-controller', '#F7DC6F', 1, 7),
+(NULL, 'Ropa y Accesorios', 'egreso', 'bi-bag', '#BB8FCE', 1, 8),
+(NULL, 'Cuidado Personal', 'egreso', 'bi-person-hearts', '#85C1E9', 1, 9),
+(NULL, 'Mascotas', 'egreso', 'bi-emoji-heart-eyes', '#F8B500', 1, 10),
+(NULL, 'Regalos', 'egreso', 'bi-gift', '#E74C3C', 1, 11),
+(NULL, 'Tecnología', 'egreso', 'bi-laptop', '#5D6D7E', 1, 12),
+(NULL, 'Seguros', 'egreso', 'bi-shield-check', '#1ABC9C', 1, 13),
+(NULL, 'Deudas', 'egreso', 'bi-credit-card', '#E67E22', 1, 14),
+(NULL, 'Impuestos', 'egreso', 'bi-receipt', '#95A5A6', 1, 15),
+(NULL, 'Otros Gastos', 'egreso', 'bi-three-dots', '#7F8C8D', 1, 16);
+
+-- Categorías de Ingreso
+INSERT INTO categorias (usuario_id, nombre, tipo, icono, color, es_sistema, orden) VALUES
+(NULL, 'Salario', 'ingreso', 'bi-wallet2', '#27AE60', 1, 1),
+(NULL, 'Freelance', 'ingreso', 'bi-laptop', '#3498DB', 1, 2),
+(NULL, 'Inversiones', 'ingreso', 'bi-graph-up-arrow', '#9B59B6', 1, 3),
+(NULL, 'Arriendos', 'ingreso', 'bi-building', '#E74C3C', 1, 4),
+(NULL, 'Ventas', 'ingreso', 'bi-shop', '#F39C12', 1, 5),
+(NULL, 'Préstamos Recibidos', 'ingreso', 'bi-cash-coin', '#1ABC9C', 1, 6),
+(NULL, 'Reembolsos', 'ingreso', 'bi-arrow-return-left', '#34495E', 1, 7),
+(NULL, 'Bonificaciones', 'ingreso', 'bi-trophy', '#E91E63', 1, 8),
+(NULL, 'Otros Ingresos', 'ingreso', 'bi-plus-circle', '#95A5A6', 1, 9);
+
+-- =====================================================
+-- SUBCATEGORÍAS PREDEFINIDAS
+-- =====================================================
+-- Subcategorías de Alimentación (ID 1)
+INSERT INTO subcategorias (categoria_id, usuario_id, nombre, icono) VALUES
+(1, NULL, 'Supermercado', 'bi-cart'),
+(1, NULL, 'Restaurantes', 'bi-cup-straw'),
+(1, NULL, 'Delivery', 'bi-bicycle'),
+(1, NULL, 'Café y Snacks', 'bi-cup-hot');
+
+-- Subcategorías de Transporte (ID 2)
+INSERT INTO subcategorias (categoria_id, usuario_id, nombre, icono) VALUES
+(2, NULL, 'Gasolina', 'bi-fuel-pump'),
+(2, NULL, 'Transporte Público', 'bi-bus-front'),
+(2, NULL, 'Taxi/Uber', 'bi-taxi-front'),
+(2, NULL, 'Mantenimiento Vehículo', 'bi-tools'),
+(2, NULL, 'Parqueadero', 'bi-p-circle');
+
+-- Subcategorías de Vivienda (ID 3)
+INSERT INTO subcategorias (categoria_id, usuario_id, nombre, icono) VALUES
+(3, NULL, 'Arriendo/Hipoteca', 'bi-key'),
+(3, NULL, 'Administración', 'bi-building'),
+(3, NULL, 'Reparaciones', 'bi-wrench'),
+(3, NULL, 'Muebles y Decoración', 'bi-lamp');
+
+-- Subcategorías de Servicios Públicos (ID 4)
+INSERT INTO subcategorias (categoria_id, usuario_id, nombre, icono) VALUES
+(4, NULL, 'Energía', 'bi-lightbulb'),
+(4, NULL, 'Agua', 'bi-droplet'),
+(4, NULL, 'Gas', 'bi-fire'),
+(4, NULL, 'Internet', 'bi-wifi'),
+(4, NULL, 'Telefonía', 'bi-phone');
+
+-- Subcategorías de Entretenimiento (ID 7)
+INSERT INTO subcategorias (categoria_id, usuario_id, nombre, icono) VALUES
+(7, NULL, 'Streaming', 'bi-play-circle'),
+(7, NULL, 'Cine', 'bi-film'),
+(7, NULL, 'Videojuegos', 'bi-controller'),
+(7, NULL, 'Deportes', 'bi-trophy'),
+(7, NULL, 'Viajes', 'bi-airplane');
+
+-- =====================================================
+-- USUARIO ADMINISTRADOR INICIAL
+-- =====================================================
+-- Password: Admin123! (hash bcrypt generado con password_hash)
+INSERT INTO usuarios (nombre, email, password, rol, estado, onboarding_completado) VALUES
+('Administrador', 'admin@andfinance.com', '$2y$10$w4Iepm6Nn8Bhl8y0fSYRB.3NzJY7hAqg3sMPOajipFVX1YMlbZEea', 'admin', 1, 1);
+

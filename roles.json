@@ -1,39 +1,78 @@
 {
-  "admin": {
-    "bancos": {
-      "create": true,
-      "read": true,
-      "update": true,
-      "delete": true
+    "admin": {
+        "descripcion": "Administrador del sistema",
+        "modulos": {
+            "bancos": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "usuarios": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "categorias_sistema": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "reportes_globales": {
+                "ver": true
+            },
+            "configuracion": {
+                "ver": true,
+                "editar": true
+            }
+        }
+    },
+    "usuario": {
+        "descripcion": "Usuario regular de la aplicación",
+        "modulos": {
+            "dashboard": {
+                "ver": true
+            },
+            "cuentas": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "categorias": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "transacciones": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "gastos_recurrentes": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "presupuestos": {
+                "ver": true,
+                "crear": true,
+                "editar": true,
+                "eliminar": true
+            },
+            "reportes": {
+                "ver": true
+            },
+            "perfil": {
+                "ver": true,
+                "editar": true
+            }
+        }
     }
-  },
-  "usuario": {
-    "cuentas": {
-      "create": true,
-      "read": true,
-      "update": true,
-      "delete": true
-    },
-    "categorias": {
-      "create": true,
-      "read": true,
-      "update": true,
-      "delete": true
-    },
-    "transacciones": {
-      "create": true,
-      "read": true,
-      "update": true,
-      "delete": true
-    },
-    "gastos_recurrentes": {
-      "create": true,
-      "read": true,
-      "update": true,
-      "delete": true
-    },
-    "reportes": {
-      "read": true
-    }
-  }
 }
+

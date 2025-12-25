@@ -1,108 +1,90 @@
 <?php
 /**
- * Configuración de rutas para la interfaz UI
+ * AND FINANCE APP - UI Paths Configuration
+ * Configuración de rutas y URLs para la interfaz de usuario
  */
 
-// Definir la ruta base de la aplicación
-define('BASE_PATH', dirname(__DIR__, 2));
-
-// Función para obtener la URL base absoluta de UI (server-relative)
-function getBaseUrl() {
-    $scriptName = $_SERVER['SCRIPT_NAME'];
-    $marker = '/ui/';
-    $pos = strpos($scriptName, $marker);
-    if ($pos !== false) {
-        return substr($scriptName, 0, $pos + strlen($marker));
-    }
-    return './';
+// Prevenir acceso directo
+if (!defined('APP_NAME')) {
+    require_once __DIR__ . '/../../config/database.php';
 }
 
-// Función para obtener rutas absolutas en el filesystem
-function getAbsolutePath($relativePath) {
-    return BASE_PATH . '/' . $relativePath;
+// Rutas del sistema de archivos
+define('UI_ROOT', dirname(__DIR__));
+define('UI_MODULES', UI_ROOT . '/modules');
+define('UI_VIEWS', UI_ROOT . '/views');
+define('UI_CONTROLLERS', UI_ROOT . '/controllers');
+
+// Rutas de la aplicación (si no están definidas)
+if (!defined('APP_ROOT')) {
+    define('APP_ROOT', dirname(UI_ROOT));
+}
+if (!defined('ASSETS_PATH')) {
+    define('ASSETS_PATH', APP_ROOT . '/assets');
+}
+if (!defined('UPLOADS_PATH')) {
+    define('UPLOADS_PATH', APP_ROOT . '/uploads');
 }
 
-// Función para obtener rutas de redirección
-function getRedirectPath($path) {
-    return getBaseUrl() . $path;
+// URLs base
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+// Detectar la URL base del UI
+$uiPath = '/process/and_finance_app/ui';
+define('UI_URL', $protocol . '://' . $host . $uiPath);
+
+if (!defined('APP_BASE_URL')) {
+    define('APP_BASE_URL', $protocol . '://' . $host . '/process/and_finance_app');
+}
+if (!defined('ASSETS_URL')) {
+    define('ASSETS_URL', APP_BASE_URL . '/assets');
+}
+if (!defined('UPLOADS_URL')) {
+    define('UPLOADS_URL', APP_BASE_URL . '/uploads');
 }
 
-// Función para obtener URL de assets
-function getAssetUrl($path) {
-    // Obtener la ruta del script actual
-    $scriptName = $_SERVER['SCRIPT_NAME'];
-    
-    // Buscar el patrón /ui/ o /admin/ en la ruta
-    $marker = '/ui/';
-    $pos = strpos($scriptName, $marker);
-    if ($pos !== false) {
-        // Extraer la parte antes de /ui/ y agregar /assets/
-        $basePath = substr($scriptName, 0, $pos);
-        return $basePath . '/assets/' . ltrim($path, '/');
-    }
-    
-    // Fallback: intentar con getBaseUrl
-    $baseUrl = getBaseUrl();
-    $baseUrl = rtrim($baseUrl, '/');
-    $parts = explode('/', $baseUrl);
-    array_pop($parts); // Eliminar el último segmento (ui)
-    return implode('/', $parts) . '/assets/' . ltrim($path, '/');
+/**
+ * Función helper para generar URLs del UI
+ */
+function uiUrl(string $path = ''): string {
+    return UI_URL . '/' . ltrim($path, '/');
 }
 
-// Función para obtener URL de archivos subidos (igual que en we_are_app)
-function getFileUrl($filePath) {
-    // Si está vacío, retornar vacío
-    if (empty($filePath)) {
-        return '';
+/**
+ * Función helper para assets
+ */
+if (!function_exists('assetUrl')) {
+    function assetUrl(string $path = ''): string {
+        return ASSETS_URL . '/' . ltrim($path, '/');
     }
-    
-    // Si ya es una URL completa (http/https), usarla directamente
-    if (strpos($filePath, 'http://') === 0 || strpos($filePath, 'https://') === 0) {
-        return $filePath;
-    }
-    
-    // Si ya empieza con /, es una ruta absoluta - usarla directamente
-    if (strpos($filePath, '/') === 0) {
-        return $filePath;
-    }
-    
-    // Si la ruta ya incluye la base del proyecto, usarla directamente
-    if (strpos($filePath, '/and_finance_app/') !== false) {
-        return $filePath;
-    }
-    
-    // Normalizar la ruta (eliminar / inicial si existe)
-    $filePath = ltrim($filePath, '/');
-    
-    // Obtener la URL base del proyecto de múltiples formas
-    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
-    $requestUri = $_SERVER['REQUEST_URI'] ?? '';
-    
-    // Intentar encontrar el patrón /and_finance_app/ en SCRIPT_NAME
-    $marker = '/and_finance_app/';
-    $pos = strpos($scriptName, $marker);
-    if ($pos !== false) {
-        $baseProjectUrl = substr($scriptName, 0, $pos + strlen($marker));
-        return $baseProjectUrl . $filePath;
-    }
-    
-    // Intentar encontrar el patrón en REQUEST_URI
-    $pos = strpos($requestUri, $marker);
-    if ($pos !== false) {
-        $baseProjectUrl = substr($requestUri, 0, $pos + strlen($marker));
-        // Limpiar query string si existe
-        $baseProjectUrl = strtok($baseProjectUrl, '?');
-        return $baseProjectUrl . $filePath;
-    }
-    
-    // Fallback: usar getBaseUrl() y construir desde ahí
-    $baseUrl = getBaseUrl();
-    // Si getBaseUrl() retorna algo con /ui/, removerlo
-    if (strpos($baseUrl, '/ui/') !== false) {
-        $baseUrl = str_replace('/ui/', '/', $baseUrl);
-    }
-    // Asegurar que termine con /
-    $baseUrl = rtrim($baseUrl, '/') . '/';
-    
-    return $baseUrl . $filePath;
 }
+
+/**
+ * Función helper para URLs de módulos
+ */
+function uiModuleUrl(string $module, string $page = '', array $params = []): string {
+    $url = UI_URL . '/index.php?module=' . $module;
+    if ($page) {
+        $url .= '&page=' . $page;
+    }
+    foreach ($params as $key => $value) {
+        $url .= '&' . urlencode($key) . '=' . urlencode($value);
+    }
+    return $url;
+}
+
+/**
+ * Función para formatear moneda
+ */
+function formatMoney(float $amount, string $currency = 'COP'): string {
+    return '$' . number_format($amount, 0, ',', '.');
+}
+
+/**
+ * Función para formatear fecha
+ */
+function formatDate(string $date, string $format = 'd/m/Y'): string {
+    return date($format, strtotime($date));
+}
+

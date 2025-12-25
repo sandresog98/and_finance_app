@@ -1,154 +1,207 @@
 <?php
 /**
- * Listado de Bancos
+ * AND FINANCE APP - Listado de Bancos
  */
 
-session_start();
+require_once __DIR__ . '/../models/BancoModel.php';
 
-// Verificar autenticación
-if (!isset($_SESSION['and_finance_user']) || $_SESSION['and_finance_user']['rol'] !== 'admin') {
-    header('Location: ../../../ui/login.php');
+$pageTitle = 'Gestión de Bancos';
+$bancoModel = new BancoModel();
+
+// Manejar acciones
+$action = $_GET['action'] ?? '';
+$id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if ($action === 'toggle' && $id > 0) {
+    if ($bancoModel->toggleEstado($id)) {
+        setFlashMessage('success', 'Estado del banco actualizado correctamente');
+    } else {
+        setFlashMessage('error', 'No se pudo actualizar el estado del banco');
+    }
+    ob_end_clean();
+    header('Location: ' . moduleUrl('bancos'));
     exit;
 }
 
-require_once dirname(__DIR__, 4) . '/admin/config/paths.php';
-require_once dirname(__DIR__, 4) . '/utils/Database.php';
-require_once dirname(__DIR__, 4) . '/utils/Env.php';
-require_once __DIR__ . '/../models/Bank.php';
-
-use Utils\Database;
-use Utils\Env;
-use Admin\Modules\Bancos\Models\Bank;
-
-$currentPage = 'bancos';
-
-try {
-    $envPath = dirname(__DIR__, 4) . '/.env';
-    if (!file_exists($envPath)) {
-        throw new Exception('Archivo .env no encontrado. Por favor, crea el archivo .env basado en env.example');
+if ($action === 'delete' && $id > 0) {
+    if ($bancoModel->delete($id)) {
+        setFlashMessage('success', 'Banco eliminado correctamente');
+    } else {
+        setFlashMessage('error', 'No se puede eliminar el banco porque tiene cuentas asociadas');
     }
-    
-    $env = new Env($envPath);
-    $db = new Database($env);
-    $bankModel = new Bank($db->getConnection());
-    
-    $bancos = $bankModel->getAll();
-} catch (Exception $e) {
-    $bancos = [];
-    $error = 'Error al cargar los bancos: ' . $e->getMessage();
-    error_log('Bancos index error: ' . $e->getMessage());
+    ob_end_clean();
+    header('Location: ' . moduleUrl('bancos'));
+    exit;
 }
 
-require_once dirname(__DIR__, 4) . '/admin/views/layouts/header.php';
-require_once dirname(__DIR__, 4) . '/admin/views/layouts/sidebar.php';
+// Obtener todos los bancos
+$bancos = $bancoModel->getAll();
 ?>
 
-<div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-university me-2"></i>Gestión de Bancos</h1>
-        <a href="<?php echo getBaseUrl(); ?>modules/bancos/pages/create.php" class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Nuevo Banco
-        </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="<?= adminUrl('index.php') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Bancos</li>
+            </ol>
+        </nav>
     </div>
-    
-    <?php if (isset($error)): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i><?php echo htmlspecialchars($error); ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <a href="<?= moduleUrl('bancos', 'crear') ?>" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Nuevo Banco
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-bank me-2"></i>
+            Listado de Bancos
+            <span class="badge bg-primary ms-2"><?= count($bancos) ?></span>
+        </h5>
     </div>
-    <?php endif; ?>
-    
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Logo</th>
-                            <th>Nombre</th>
-                            <th>Código</th>
-                            <th>País</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($bancos)): ?>
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
-                                No hay bancos registrados
-                            </td>
-                        </tr>
-                        <?php else: ?>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover" id="tablaBancos">
+                <thead>
+                    <tr>
+                        <th width="60">Logo</th>
+                        <th>Nombre</th>
+                        <th>Código</th>
+                        <th width="80">Color</th>
+                        <th width="100">Orden</th>
+                        <th width="100">Estado</th>
+                        <th width="150">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($bancos)): ?>
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="bi bi-bank fs-1 text-muted d-block mb-3"></i>
+                            <p class="text-muted mb-3">No hay bancos registrados</p>
+                            <a href="<?= moduleUrl('bancos', 'crear') ?>" class="btn btn-primary btn-sm">
+                                <i class="bi bi-plus-lg me-1"></i>Agregar primer banco
+                            </a>
+                        </td>
+                    </tr>
+                    <?php else: ?>
                         <?php foreach ($bancos as $banco): ?>
                         <tr>
                             <td>
-                                <?php if (!empty($banco['logo_url'])): ?>
-                                <img src="<?php echo htmlspecialchars(getFileUrl($banco['logo_url'])); ?>" 
-                                     alt="<?php echo htmlspecialchars($banco['nombre']); ?>" 
-                                     style="max-width: 50px; max-height: 50px; object-fit: contain;"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                                <i class="fas fa-university text-muted fa-2x" style="display: none;"></i>
+                                <?php if ($banco['logo']): ?>
+                                    <img src="<?= UPLOADS_URL . '/bancos/' . htmlspecialchars($banco['logo']) ?>" 
+                                         alt="<?= htmlspecialchars($banco['nombre']) ?>"
+                                         class="banco-logo"
+                                         onerror="this.src='<?= assetUrl('img/bank-placeholder.png') ?>'">
                                 <?php else: ?>
-                                <i class="fas fa-university text-muted fa-2x"></i>
-                                <?php endif; ?>
-                            </td>
-                            <td><strong><?php echo htmlspecialchars($banco['nombre']); ?></strong></td>
-                            <td><?php echo htmlspecialchars($banco['codigo'] ?? '-'); ?></td>
-                            <td><?php echo htmlspecialchars($banco['pais']); ?></td>
-                            <td>
-                                <?php if ($banco['estado_activo']): ?>
-                                <span class="badge bg-success">Activo</span>
-                                <?php else: ?>
-                                <span class="badge bg-secondary">Inactivo</span>
+                                    <div class="banco-logo-placeholder" 
+                                         style="background-color: <?= htmlspecialchars($banco['color_primario'] ?? '#B1BCBF') ?>">
+                                        <?= strtoupper(substr($banco['nombre'], 0, 2)) ?>
+                                    </div>
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="<?php echo getBaseUrl(); ?>modules/bancos/pages/edit.php?id=<?php echo $banco['id']; ?>" 
-                                   class="btn btn-sm btn-primary">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" 
-                                        class="btn btn-sm btn-danger" 
-                                        onclick="deleteBank(<?php echo $banco['id']; ?>)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <strong><?= htmlspecialchars($banco['nombre']) ?></strong>
+                            </td>
+                            <td>
+                                <?php if ($banco['codigo']): ?>
+                                    <code><?= htmlspecialchars($banco['codigo']) ?></code>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($banco['color_primario']): ?>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="color-preview" 
+                                              style="background-color: <?= htmlspecialchars($banco['color_primario']) ?>"></span>
+                                        <small><?= htmlspecialchars($banco['color_primario']) ?></small>
+                                    </div>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary"><?= $banco['orden'] ?></span>
+                            </td>
+                            <td>
+                                <span class="badge <?= $banco['estado'] == 1 ? 'badge-active' : 'badge-inactive' ?>">
+                                    <?= $banco['estado'] == 1 ? 'Activo' : 'Inactivo' ?>
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="<?= moduleUrl('bancos', 'editar') ?>&id=<?= $banco['id'] ?>" 
+                                       class="btn btn-outline-primary" 
+                                       title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="<?= moduleUrl('bancos') ?>&action=toggle&id=<?= $banco['id'] ?>" 
+                                       class="btn btn-outline-<?= $banco['estado'] == 1 ? 'warning' : 'success' ?>" 
+                                       title="<?= $banco['estado'] == 1 ? 'Desactivar' : 'Activar' ?>">
+                                        <i class="bi bi-<?= $banco['estado'] == 1 ? 'pause' : 'play' ?>"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-outline-danger" 
+                                            onclick="confirmDelete('<?= moduleUrl('bancos') ?>&action=delete&id=<?= $banco['id'] ?>', '<?= htmlspecialchars($banco['nombre']) ?>')"
+                                            title="Eliminar">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                         <?php endforeach; ?>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<script>
-function deleteBank(id) {
-    if (confirm('¿Está seguro de eliminar este banco?')) {
-        fetch('<?php echo getBaseUrl(); ?>modules/bancos/api/delete.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: id })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error: ' + (data.message || 'No se pudo eliminar el banco'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al eliminar el banco');
-        });
-    }
+<style>
+.banco-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    padding: 4px;
+    background: white;
 }
-</script>
 
-<?php require_once dirname(__DIR__, 4) . '/admin/views/layouts/footer.php'; ?>
+.banco-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+</style>
+
+<?php
+$extraScripts = <<<SCRIPT
+<script>
+$(document).ready(function() {
+    $('#tablaBancos').DataTable({
+        order: [[4, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: [0, 6] }
+        ]
+    });
+});
+</script>
+SCRIPT;
+?>
+

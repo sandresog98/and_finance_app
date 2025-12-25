@@ -1,62 +1,88 @@
-    </div> <!-- .main-content -->
+        </div><!-- End Content Area -->
+    </div><!-- End Main Content -->
     
-<script>
-// Toggle sidebar en móviles
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('mainSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     
-    // Asegurar que el sidebar esté oculto por defecto en móviles
-    if (sidebar && window.innerWidth <= 767.98) {
-        sidebar.classList.remove('active');
-    }
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    if (sidebarToggle && sidebar && overlay) {
-        // Abrir sidebar
-        sidebarToggle.addEventListener('click', function() {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevenir scroll del body
-        });
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
         
-        // Cerrar sidebar al hacer clic en overlay
-        overlay.addEventListener('click', function() {
-            closeSidebar();
-        });
-        
-        // Cerrar sidebar con botón de cerrar
-        const closeBtn = document.getElementById('closeSidebar');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                closeSidebar();
+        // Initialize DataTables with Spanish language
+        if (typeof $.fn.DataTable !== 'undefined') {
+            $.extend(true, $.fn.dataTable.defaults, {
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+                },
+                responsive: true,
+                pageLength: 10,
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]]
             });
         }
         
-        // Cerrar sidebar al hacer clic en un enlace (solo en móviles)
-        const sidebarLinks = sidebar.querySelectorAll('.nav-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.innerWidth <= 767.98) {
-                    closeSidebar();
+        // Confirmation for delete actions
+        function confirmDelete(url, itemName = 'este elemento') {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `Se eliminará ${itemName}. Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
                 }
             });
-        });
-        
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = ''; // Restaurar scroll
         }
         
-        // Cerrar sidebar al redimensionar a desktop
+        // Toast notifications
+        function showToast(type, message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+            
+            Toast.fire({
+                icon: type,
+                title: message
+            });
+        }
+        
+        // Close sidebar on window resize
         window.addEventListener('resize', function() {
-            if (window.innerWidth > 767.98) {
-                closeSidebar();
+            if (window.innerWidth > 992) {
+                document.getElementById('sidebar').classList.remove('show');
+                document.getElementById('sidebarOverlay').classList.remove('show');
             }
         });
-    }
-});
-</script>
+    </script>
+    
+    <?php if (isset($extraScripts)): ?>
+        <?= $extraScripts ?>
+    <?php endif; ?>
 </body>
 </html>
+

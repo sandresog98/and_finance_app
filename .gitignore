@@ -1,70 +1,79 @@
-# Archivos de configuración sensibles
-.env
-*.env
-!env.example
+# =====================================================
+# AND FINANCE APP - Git Ignore
+# =====================================================
 
-# Archivos subidos por usuarios
+# === ARCHIVOS DE ENTORNO ===
+.env
+*.env.local
+*.env.production
+
+# === UPLOADS (contenido dinámico) ===
 uploads/*
-!uploads/.htaccess
-!uploads/bancos/
-!uploads/transacciones/
-uploads/bancos/*
-uploads/transacciones/*
+!uploads/.gitkeep
 !uploads/bancos/.gitkeep
 !uploads/transacciones/.gitkeep
 
-# Logs
+# === DEPENDENCIAS Y CACHE ===
+vendor/
+node_modules/
+.cache/
+*.cache
+
+# === LOGS ===
 *.log
 logs/
-/opt/lampp/logs/
+error_log
 
-# Archivos temporales
-*.tmp
-*.temp
-*.swp
-*.swo
-*~
-.DS_Store
-Thumbs.db
-
-# Archivos de IDE
-.idea/
-.vscode/
-*.sublime-project
-*.sublime-workspace
-.cursor/
-
-# Archivos de sistema operativo
+# === SISTEMA OPERATIVO ===
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Desktop.ini
+Thumbs.db
+desktop.ini
 
-# Archivos de PHP
-*.cache
-composer.phar
-vendor/
+# === IDE Y EDITORES ===
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+.buildpath
+*.code-workspace
+
+# === PHP ===
+*.phar
 composer.lock
 
-# Archivos de backup
+# === TEMPORAL ===
+tmp/
+temp/
+*.tmp
 *.bak
 *.backup
-*.old
-*_backup.php
-*_old.php
 
-# Archivos de sesión
-sessions/
-tmp/
+# === ARCHIVOS DE BASE DE DATOS LOCALES ===
+*.sql.backup
+*.sql.gz
+db_backup/
 
-# Archivos de configuración local
-config.local.php
-database.local.php
+# === DOCUMENTACIÓN GENERADA ===
+docs/api/
+phpdoc/
 
-# Archivos de migración temporal
-sql/migrate_*.sql
-!sql/ddl.sql
-!sql/reset_db.php
+# === TESTING ===
+coverage/
+.phpunit.result.cache
+phpunit.xml
+
+# === OTROS ===
+*.zip
+*.tar.gz
+*.rar
+nbproject/
