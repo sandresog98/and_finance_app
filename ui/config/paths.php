@@ -26,16 +26,27 @@ if (!defined('UPLOADS_PATH')) {
     define('UPLOADS_PATH', APP_ROOT . '/uploads');
 }
 
-// URLs base
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+// URLs base - Detección automática
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-// Detectar la URL base del UI
-$uiPath = '/process/and_finance_app/ui';
-define('UI_URL', $protocol . '://' . $host . $uiPath);
+// Detectar la ruta base automáticamente desde SCRIPT_NAME
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+// Buscar /ui/ en la ruta para extraer la base
+if (preg_match('#^(.*?)/ui(?:/|$)#', $scriptName, $matches)) {
+    $appBasePath = $matches[1];
+} else {
+    // Fallback
+    $appBasePath = dirname(dirname($scriptName));
+    if ($appBasePath === '/' || $appBasePath === '\\') {
+        $appBasePath = '';
+    }
+}
+
+define('UI_URL', $protocol . '://' . $host . $appBasePath . '/ui');
 
 if (!defined('APP_BASE_URL')) {
-    define('APP_BASE_URL', $protocol . '://' . $host . '/process/and_finance_app');
+    define('APP_BASE_URL', $protocol . '://' . $host . $appBasePath);
 }
 if (!defined('ASSETS_URL')) {
     define('ASSETS_URL', APP_BASE_URL . '/assets');

@@ -30,7 +30,30 @@ if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Configuración de la aplicación
 if (!defined('APP_NAME')) define('APP_NAME', 'AndFinance');
-if (!defined('APP_URL')) define('APP_URL', 'http://localhost/process/and_finance_app');
+
+// Detectar APP_URL automáticamente
+if (!defined('APP_URL')) {
+    $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    
+    // Detectar la ruta base desde SCRIPT_NAME
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    // Buscar la posición de /admin/ o /ui/ para obtener la ruta base
+    if (preg_match('#^(.*?)/(admin|ui)/#', $scriptName, $matches)) {
+        $basePath = $matches[1];
+    } elseif (preg_match('#^(.*?)/(admin|ui)$#', dirname($scriptName), $matches)) {
+        $basePath = $matches[1];
+    } else {
+        // Fallback: obtener directorio padre del script
+        $basePath = dirname(dirname($scriptName));
+        if ($basePath === '/' || $basePath === '\\') {
+            $basePath = '';
+        }
+    }
+    
+    define('APP_URL', $protocol . '://' . $host . $basePath);
+}
+
 if (!defined('APP_ENV')) define('APP_ENV', 'development');
 if (!defined('APP_DEBUG')) define('APP_DEBUG', true);
 

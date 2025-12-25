@@ -20,15 +20,25 @@ define('APP_ROOT', dirname(ADMIN_ROOT));
 define('ASSETS_PATH', APP_ROOT . '/assets');
 define('UPLOADS_PATH', APP_ROOT . '/uploads');
 
-// URLs base
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+// URLs base - Detección automática
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-$scriptPath = dirname($_SERVER['SCRIPT_NAME']);
 
-// Detectar la URL base del admin
-$adminPath = '/process/and_finance_app/admin';
-define('ADMIN_URL', $protocol . '://' . $host . $adminPath);
-define('APP_BASE_URL', $protocol . '://' . $host . '/process/and_finance_app');
+// Detectar la ruta base automáticamente desde SCRIPT_NAME
+$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+// Buscar /admin/ en la ruta para extraer la base
+if (preg_match('#^(.*?)/admin(?:/|$)#', $scriptName, $matches)) {
+    $appBasePath = $matches[1];
+} else {
+    // Fallback
+    $appBasePath = dirname(dirname($scriptName));
+    if ($appBasePath === '/' || $appBasePath === '\\') {
+        $appBasePath = '';
+    }
+}
+
+define('ADMIN_URL', $protocol . '://' . $host . $appBasePath . '/admin');
+define('APP_BASE_URL', $protocol . '://' . $host . $appBasePath);
 define('ASSETS_URL', APP_BASE_URL . '/assets');
 define('UPLOADS_URL', APP_BASE_URL . '/uploads');
 
