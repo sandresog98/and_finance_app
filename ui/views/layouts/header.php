@@ -167,10 +167,15 @@ $userTheme = $userConfig['tema'] ?? 'light';
         }
         
         .sidebar-brand {
-            padding: 25px 20px;
+            padding: 20px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
             background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+        }
+        
+        .sidebar-brand img {
+            max-width: 180px;
+            height: auto;
         }
         
         .sidebar-brand h2 {
@@ -974,10 +979,7 @@ $userTheme = $userConfig['tema'] ?? 'light';
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <h2>
-                <i class="bi bi-wallet2"></i>
-                <?= APP_NAME ?>
-            </h2>
+            <img src="<?= assetUrl('img/logo-horizontal-white.png') ?>" alt="<?= APP_NAME ?>">
         </div>
         
         <div class="sidebar-user">

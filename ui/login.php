@@ -257,11 +257,26 @@ $resetCode = $_GET['code'] ?? '';
             justify-content: center;
             margin: 0 auto 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 0;
+        }
+        
+        .auth-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .auth-logo i {
             font-size: 40px;
             color: var(--dark-blue);
+        }
+        
+        /* Logo horizontal para sidebar */
+        .auth-logo-horizontal {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 30px;
         }
         
         .auth-sidebar h1 {
@@ -574,20 +589,16 @@ $resetCode = $_GET['code'] ?? '';
                 margin-bottom: 30px;
             }
             
-            .mobile-logo .auth-logo {
-                width: 60px;
-                height: 60px;
-                margin-bottom: 15px;
+            .mobile-logo-container {
+                background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+                padding: 12px 20px;
+                border-radius: 14px;
+                box-shadow: 0 8px 25px rgba(53, 113, 158, 0.3);
             }
             
-            .mobile-logo .auth-logo i {
-                font-size: 28px;
-            }
-            
-            .mobile-logo h1 {
-                font-weight: 800;
-                font-size: 24px;
-                color: var(--dark-blue);
+            .mobile-logo-container img {
+                max-width: 160px;
+                height: auto;
             }
             
             .code-input {
@@ -603,10 +614,7 @@ $resetCode = $_GET['code'] ?? '';
         <!-- Sidebar -->
         <div class="auth-sidebar">
             <div class="auth-sidebar-content">
-                <div class="auth-logo">
-                    <i class="bi bi-wallet2"></i>
-                </div>
-                <h1><?= APP_NAME ?></h1>
+                <img src="<?= assetUrl('img/logo-horizontal-white.png') ?>" alt="<?= APP_NAME ?>" class="auth-logo-horizontal">
                 <p>Tu compañero inteligente para gestionar tus finanzas personales de forma simple y efectiva.</p>
                 
                 <div class="features-list">
@@ -643,10 +651,9 @@ $resetCode = $_GET['code'] ?? '';
             <div class="auth-form-container">
                 <!-- Mobile Logo -->
                 <div class="mobile-logo d-lg-none">
-                    <div class="auth-logo">
-                        <i class="bi bi-wallet2"></i>
+                    <div class="mobile-logo-container">
+                        <img src="<?= assetUrl('img/logo-horizontal-white.png') ?>" alt="<?= APP_NAME ?>">
                     </div>
-                    <h1><?= APP_NAME ?></h1>
                 </div>
                 
                 <?php if ($error): ?>

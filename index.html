@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AndFinance - Gestión de Finanzas Personales</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicons/favicon.ico">
+    
     <!-- Google Fonts - Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -67,17 +70,22 @@
         }
         
         .logo-icon {
-            width: 80px;
-            height: 80px;
+            width: 120px;
+            height: 120px;
             background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
-            border-radius: 24px;
+            border-radius: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            color: white;
             margin-bottom: 30px;
+            padding: 20px;
             box-shadow: 0 15px 40px rgba(53, 113, 158, 0.3);
+        }
+        
+        .logo-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .hero-title {
@@ -314,7 +322,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6 hero-content">
                     <div class="logo-icon">
-                        <i class="bi bi-wallet2"></i>
+                        <img src="assets/img/logo-square.png" alt="AndFinance">
                     </div>
                     <h1 class="hero-title">
                         Tus finanzas, <span>bajo control</span>
@@ -427,7 +435,7 @@
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start">
                     <p class="footer-text">
-                        <i class="bi bi-wallet2 me-2"></i>
+                        <img src="assets/img/logo-square.png" alt="AndFinance" style="width: 24px; height: 24px; margin-right: 8px; vertical-align: middle; border-radius: 6px;">
                         <strong>AndFinance</strong> &copy; 2024
                     </p>
                 </div>
