@@ -70,9 +70,15 @@ $flashMessage = getFlashMessage();
         }
         
         .sidebar-brand {
-            padding: 25px 20px;
+            padding: 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-brand img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 8px;
         }
         
         .sidebar-brand h2 {
@@ -418,8 +424,8 @@ $flashMessage = getFlashMessage();
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <i class="bi bi-wallet2" style="font-size: 32px; color: white;"></i>
-            <h2><?= APP_NAME ?></h2>
+            <img src="<?= assetUrl('img/logo-horizontal-white.png') ?>" alt="<?= APP_NAME ?>">
+            <br>
             <span>Panel de Administración</span>
         </div>
         

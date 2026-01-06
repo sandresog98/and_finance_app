@@ -94,6 +94,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 30px;
         }
         
+        .login-logo-container {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+            padding: 15px 25px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 25px rgba(53, 113, 158, 0.3);
+        }
+        
+        .login-logo img {
+            max-width: 180px;
+            height: auto;
+        }
+        
         .login-logo i {
             font-size: 48px;
             color: var(--primary-blue);
@@ -238,8 +252,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <i class="bi bi-wallet2"></i>
-                <h1><?= APP_NAME ?></h1>
+                <div class="login-logo-container">
+                    <img src="<?= assetUrl('img/logo-horizontal-white.png') ?>" alt="<?= APP_NAME ?>">
+                </div>
+                <br>
                 <span>Panel Administrativo</span>
             </div>
             
